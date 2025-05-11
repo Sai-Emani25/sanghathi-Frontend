@@ -1,4 +1,5 @@
 import { useState, useEffect, React } from "react";
+import * as XLSX from 'xlsx';
 
 import {
   Avatar,
@@ -43,6 +44,7 @@ import { alpha, useTheme } from "@mui/material/styles";
 import Page from "../../components/Page";
 import api from "../../utils/axios"; // replace with your actual API path
 import axios from "axios";
+import { useSnackbar } from "notistack";
 
 const baseURL = import.meta.env.VITE_PYTHON_API;
 
@@ -87,6 +89,7 @@ const Report = () => {
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedStatus, setSelectedStatus] = useState("Closed");
   const [showFilters, setShowFilters] = useState(false);
+  const { enqueueSnackbar } = useSnackbar();
 
   // Get the color based on the current theme mode
   const activeColor = isLight ? theme.palette.primary.main : theme.palette.info.main;
@@ -244,23 +247,73 @@ const Report = () => {
     return '#9e9e9e';
   };
 
-  const handleExportToExcel = async () => {
-    const data = processTableData(threads);
+  const handleExportToExcel = () => {
     try {
-      const response = await axios.post(`${baseURL}generate_excel`, data, {
-        responseType: "blob",
-      });
-      const link = document.createElement("a");
-      link.href = URL.createObjectURL(response.data);
-      link.download = "report.xlsx";
+      // Prepare the data for Excel
+      const excelData = filteredThreads.map(thread => ({
+        'Title': thread.title || 'N/A',
+        'Summary': thread.description || 'N/A',
+        'Status': thread.status || 'N/A',
+        'Category': thread.topic || 'Uncategorized',
+        'Opened Date': thread.createdAt ? new Date(thread.createdAt).toLocaleDateString() : 'N/A',
+        'Closed Date': thread.closedAt ? new Date(thread.closedAt).toLocaleDateString() : 'N/A',
+        'Author': thread.author?.name || 'N/A',
+        'Members': thread.participants?.map(p => p.name).join(', ') || 'N/A'
+      }));
+
+      // Create a worksheet
+      const worksheet = XLSX.utils.json_to_sheet(excelData);
+
+      // Set column widths
+      const columnWidths = [
+        { wch: 30 }, // Title
+        { wch: 50 }, // Description
+        { wch: 15 }, // Status
+        { wch: 20 }, // Category
+        { wch: 20 }, // Opened Date
+        { wch: 20 }, // Closed Date
+        { wch: 20 }, // Author
+        { wch: 40 }  // Members
+      ];
+      worksheet['!cols'] = columnWidths;
+
+      // Create a workbook
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, 'Threads Report');
+
+      // Generate Excel file
+      const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+      const data = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+
+      // Create download link
+      const url = window.URL.createObjectURL(data);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `Threads_Report_${new Date().toISOString().split('T')[0]}.xlsx`;
       document.body.appendChild(link);
       link.click();
 
-      URL.revokeObjectURL(link.href);
+      // Cleanup
       document.body.removeChild(link);
-      console.log(response);
+      window.URL.revokeObjectURL(url);
+
+      // Show success message
+      enqueueSnackbar("Report exported successfully!", { 
+        variant: "success",
+        anchorOrigin: {
+          vertical: 'top',
+          horizontal: 'right'
+        }
+      });
     } catch (error) {
-      console.error(error);
+      console.error("Error exporting to Excel:", error);
+      enqueueSnackbar("Error exporting report", { 
+        variant: "error",
+        anchorOrigin: {
+          vertical: 'top',
+          horizontal: 'right'
+        }
+      });
     }
   };
 
