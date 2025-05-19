@@ -234,31 +234,64 @@ const MyChatBot = () => {
   return (
     <>
       <style>
-        {`  element.style{
-              background-color: rgba(40,46,62) !important;
-              }
-          .rcb-chat-window {
-           
-            position: fixed !important;
-            top: 66px !important;
-            left: 251px !important;
-            width: 92vw !important;
-            height: 93vh !important;
-            border-radius: 0 !important;
-            box-shadow: none !important;
-            z-index: 9999 !important;
-          }
-           .rcb-chat-body-container{
-           background-color: rgba(40,46,62) !important;
-              height: 83% !important;
-              width: 92% !important;
-           }
-            .rcb-chat-input-textarea{
-            // background-color: rgba(40,46,62) !important;}
-            .input text area{
-            }
-        `}
-      </style>
+  {`
+    .rcb-chat-window {
+      position: fixed !important;
+      top: 66px !important; /* Adjust based on navbar height */
+      left: 251px !important;
+      width: calc(100vw - 251px) !important;
+      height: calc(100vh - 66px) !important;
+      border-radius: 0 !important;
+      box-shadow: none !important;
+      background-color: rgba(40, 46, 62, 1) !important;
+      z-index: 99 !important;
+      transition: all 0.3s ease;
+    }
+
+    .rcb-chat-body-container {
+      background-color: rgba(40, 46, 62, 1) !important;
+      height: 83% !important;
+      width: 100% !important;
+      overflow-y: auto;
+    }
+
+    .rcb-chat-input-textarea {
+      background-color: rgba(60, 66, 82, 1) !important;
+      color: white !important;
+      width: 100% !important;
+      border: none;
+      padding: 10px;
+      border-radius: 4px;
+      resize: none;
+    }
+
+    /* Responsive for tablets and mobile */
+    @media (max-width: 768px) {
+      .rcb-chat-window {
+        left: 0 !important;
+        top: 56px !important; /* Smaller navbar */
+        width: 100vw !important;
+        height: calc(100vh - 56px) !important;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .rcb-chat-window {
+        top: 50px !important; /* Mobile navbar */
+        height: calc(100vh - 50px) !important;
+      }
+
+      .rcb-chat-input-textarea {
+        font-size: 14px;
+      }
+    }
+      .rcb-chat-header-container {
+  display: none !important;
+}
+
+  `}
+</style>
+
       <ChatBot
         themes={themes}
         settings={{
