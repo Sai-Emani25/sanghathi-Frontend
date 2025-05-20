@@ -1,36 +1,24 @@
-import React, { useMemo } from "react";
-import { Menu, MenuItem } from "@mui/material";
+import React from "react";
+import { List, ListItem, ListItemText } from '@mui/material';
 
-const MentorSuggestionMenu = ({
-  anchorEl,
-  open,
-  onClose,
-  suggestions,
-  onMentorSelect,
-}) => {
-  const menuItems = useMemo(() => {
-    return suggestions.map((mentor) => (
-      <MenuItem
-        key={mentor._id}
-        onClick={() => {
-          onMentorSelect(mentor);
-          onClose();
-        }}
-      >
-        {mentor.name}
-      </MenuItem>
-    ));
-  }, [suggestions, onMentorSelect, onClose]);
-
+const MentorSuggestionMenu = ({ suggestions, onMentorSelect }) => {
   return (
-    <Menu
-      id="mentor-suggestion-menu"
-      anchorEl={anchorEl}
-      open={open}
-      onClose={onClose}
-    >
-      {menuItems}
-    </Menu>
+    <List sx={{ p: 0 }}>
+      {suggestions.map((mentor) => (
+        <ListItem
+          key={mentor._id}
+          onClick={() => onMentorSelect(mentor)}
+          sx={{
+            cursor: 'pointer',
+            '&:hover': {
+              backgroundColor: 'action.hover',
+            },
+          }}
+        >
+          <ListItemText primary={mentor.name} />
+        </ListItem>
+      ))}
+    </List>
   );
 };
 

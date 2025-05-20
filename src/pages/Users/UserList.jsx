@@ -108,43 +108,69 @@ function UserList({ onEdit }) {
 
   const handleConfirmDelete = async () => {
     try {
+      const deleteUserAndRelatedData = async (userId) => {
+        const deletePromises = [
+          // User core data
+          api.delete(`/users/${userId}`), // Delete user account
+          api.delete(`/notifications/${userId}`), // Delete user notifications
+          
+          // Student related data
+          api.delete(`/students/academic/${userId}`), // Delete academic data
+          api.delete(`/activity-data/activity${userId}`), //delete activity data
+          api.delete(`/v1/admissions/${userId}`), // Delete admission data
+          api.delete(`/students/attendance/${userId}`), // Delete attendance data
+          api.delete(`/career-counselling/career/${userId}`), // Delete career data
+          api.delete(`/career-counselling/clubevent/${userId}`), // Delete club event data
+          api.delete(`/career-counselling/clubs/${userId}`), // Delete clubs data
+          api.delete(`/v1/contact-details/${userId}`), // Delete contact details
+          api.delete(`/students/external/${userId}`), // Delete external marks
+          api.delete(`/hobbies-data/${userId}`), // Delete hobbies data
+          api.delete(`/students/Iat/${userId}`), // Delete IAT marks
+          api.delete(`/internship/${userId}`), // Delete internship data
+          api.delete(`/v1/local-guardians/${userId}`), // Delete local guardian data
+          api.delete(`/meetings/${userId}`), // Delete local guardian data
+          
+          // Faculty related data
+          api.delete(`/faculty/profile/${userId}`), // Delete faculty profile if exists
+        ];
+  
+        try {
+          await Promise.allSettled(deletePromises);
+          console.log(`Successfully processed deletion for user ${userId}`);
+        } catch (error) {
+          console.error(`Error deleting data for user ${userId}:`, error);
+          throw error;
+        }
+      };
+  
       if (selectedUsers.length > 0) {
         // Bulk delete
-        await Promise.all(selectedUsers.map(async (userId) => {
-          // Delete user data from all related models
-          const deletePromises = [
-            api.delete(`/users/${userId}`), // Delete user
-            api.delete(`/students/profile/${userId}`), // Delete student profile if exists
-            api.delete(`/faculty/profile/${userId}`), // Delete faculty profile if exists
-            api.delete(`/notifications/${userId}`), // Delete user notifications
-          ];
-          await Promise.all(deletePromises);
-        }));
+        await Promise.all(selectedUsers.map(deleteUserAndRelatedData));
         setUsers((prevUsers) =>
           prevUsers.filter((user) => !selectedUsers.includes(user._id))
         );
-        enqueueSnackbar("Selected users and their data deleted successfully", { variant: "success" });
+        enqueueSnackbar(`Successfully deleted ${selectedUsers.length} users`, { 
+          variant: "success" 
+        });
         setSelectedUsers([]);
       } else if (selectedUser) {
         // Single user delete
-        const deletePromises = [
-          api.delete(`/users/${selectedUser._id}`),
-          api.delete(`/students/profile/${selectedUser._id}`),
-          api.delete(`/faculty/profile/${selectedUser._id}`),
-          api.delete(`/notifications/${selectedUser._id}`),
-        ];
-        await Promise.all(deletePromises);
+        await deleteUserAndRelatedData(selectedUser._id);
         setUsers((prevUsers) =>
           prevUsers.filter((user) => user._id !== selectedUser._id)
         );
-        enqueueSnackbar("User and their data deleted successfully", { variant: "success" });
+        enqueueSnackbar(`Successfully deleted user ${selectedUser.name}`, { 
+          variant: "success" 
+        });
       }
+  
       setOpenDialog(false);
       handleClose();
+  
     } catch (error) {
-      console.error(error);
-      enqueueSnackbar(error.message || "Failed to delete user(s) and their data", {
-        variant: "error",
+      console.error("Delete operation failed:", error);
+      enqueueSnackbar(error.message || "Failed to delete user(s)", {
+        variant: "error"
       });
     }
   };

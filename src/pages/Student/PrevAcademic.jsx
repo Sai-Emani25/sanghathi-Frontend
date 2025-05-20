@@ -104,9 +104,9 @@ export default function PrevAcademic() {
         }
       } catch (error) {
         console.error("Error fetching academic details:", error);
-        if (error.response?.status !== 404) {
-          enqueueSnackbar("Failed to load academic details", { variant: "error" });
-        }
+        // if (error.response?.status !== 404) {
+        //   enqueueSnackbar("Failed to load academic details", { variant: "error" });
+        // }
       } finally {
         setIsDataFetched(true);
       }

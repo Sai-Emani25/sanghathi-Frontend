@@ -94,6 +94,16 @@ const MentorAllocation = () => {
     refreshStudents(); 
   };
 
+  // Add handleMentorAssignmentSuccess handler
+  const handleMentorAssignmentSuccess = async () => {
+    // Refresh the students data
+    await refreshStudents();
+    // Close the dialog
+    setDialogOpen(false);
+    // Clear selected students
+    setSelectedStudents([]);
+  };
+
   // Helper function to safely get profile data
   const getProfileData = (student, field) => {
     // Check all possible paths where the data might be
@@ -153,7 +163,8 @@ const MentorAllocation = () => {
 
     const matchesSearch = searchQuery === "" || 
       student.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (getProfileData(student, 'usn') || '').toLowerCase().includes(searchQuery.toLowerCase());
+      (getProfileData(student, 'usn') || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (mentorName || '').toLowerCase().includes(searchQuery.toLowerCase());
 
     return matchesMentorFilter && matchesSemFilter && matchesBranchFilter && matchesSearch;
   });
@@ -459,6 +470,7 @@ const MentorAllocation = () => {
           setDialogOpen(false);
           setSelectedStudents([]);
         }}
+        onSuccess={handleMentorAssignmentSuccess}
       />
     </Page>
   );

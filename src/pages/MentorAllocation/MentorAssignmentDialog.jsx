@@ -7,11 +7,13 @@ import {
   DialogActions,
   TextField,
   Button,
+  Box,
+  Paper,
 } from "@mui/material";
 import api from "../../utils/axios";
 import MentorSuggestionMenu from "./MentorSuggestionMenu";
 
-const MentorAssignmentDialog = ({ open, studentIds, onClose }) => {
+const MentorAssignmentDialog = ({ open, studentIds, onClose, onSuccess }) => {
   const [selectedMentor, setSelectedMentor] = useState({ name: "" }); // Initialize with empty name
   const [anchorEl, setAnchorEl] = useState(null);
   const [mentors, setMentors] = useState([]);
@@ -38,31 +40,36 @@ const MentorAssignmentDialog = ({ open, studentIds, onClose }) => {
     setSelectedMentor({ ...selectedMentor, name: value });
     
     if (value.trim() !== "") {
+      // Updated filter to search anywhere in the name
       setSuggestions(
         mentors.filter((mentor) =>
-          mentor.name.toLowerCase().startsWith(value.toLowerCase())
+          mentor.name.toLowerCase().includes(value.toLowerCase())
         )
       );
-      setAnchorEl(event.target);
     } else {
       setSuggestions([]);
-      setAnchorEl(null);
     }
   };
 
   const handleSave = async () => {
     try {
-      // Using the batch endpoint for multiple students
       const response = await api.post("/mentors/batch", {
         mentorId: selectedMentor._id,
         menteeIds: studentIds,
         startDate: new Date().toISOString(),
       });
 
-      console.log(response.data.message); // Log success message
+      // Call onSuccess with the updated data
+      onSuccess && onSuccess({
+        mentorId: selectedMentor._id,
+        mentorName: selectedMentor.name,
+        affectedStudentIds: studentIds
+      });
+
       handleCancel();
     } catch (error) {
       console.error("Error assigning mentor:", error);
+      enqueueSnackbar("Failed to assign mentor", { variant: "error" });
     }
   };
 
@@ -84,32 +91,50 @@ const MentorAssignmentDialog = ({ open, studentIds, onClose }) => {
       open={open}
       onClose={handleCancel}
       aria-labelledby="mentor-dialog-title"
-      maxWidth="md"
-      fullWidth={true}
-      sx={{ "& .MuiPaper-root": { maxWidth: 500 } }}
+      maxWidth="sm"
+      PaperProps={{
+        sx: {
+          position: 'relative',
+          minHeight: '300px'  // Ensure enough space for suggestions
+        }
+      }}
     >
-      <DialogTitle id="mentor-dialog-title">
+      <DialogTitle>
         Assign Mentor to {studentIds.length} Selected Student(s)
       </DialogTitle>
       <DialogContent>
-        <TextField
-          autoFocus
-          margin="dense"
-          label="Mentor Name"
-          type="text"
-          fullWidth
-          value={selectedMentor.name || ""}
-          onChange={handleMentorNameChange}
-        />
-        {suggestions.length > 0 && (
-          <MentorSuggestionMenu
-            anchorEl={anchorEl}
-            open={Boolean(anchorEl)}
-            onClose={() => setAnchorEl(null)}
-            suggestions={suggestions}
-            onMentorSelect={handleMentorSelect}
+        <Box sx={{ position: 'relative' }}>
+          <TextField
+            autoFocus
+            margin="dense"
+            label="Search Mentor"
+            type="text"
+            fullWidth
+            value={selectedMentor.name || ""}
+            onChange={handleMentorNameChange}
           />
-        )}
+          {suggestions.length > 0 && (
+            <Paper
+              elevation={3}
+              sx={{
+                position: 'absolute',
+                top: 'calc(100% + 8px)',
+                left: 0,
+                right: 0,
+                zIndex: 1000,
+                maxHeight: '250px',  // Show more items
+                overflow: 'auto',
+                borderRadius: 1,
+                boxShadow: (theme) => theme.shadows[5]
+              }}
+            >
+              <MentorSuggestionMenu 
+                suggestions={suggestions}
+                onMentorSelect={handleMentorSelect}
+              />
+            </Paper>
+          )}
+        </Box>
       </DialogContent>
       <DialogActions>
         <Button onClick={handleCancel}>Cancel</Button>

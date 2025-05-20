@@ -27,10 +27,8 @@ import {
 const DEFAULT_VALUES = {
   admissionYear: "",
   branch: "",
-  semester: "",
   admissionType: "",
   category: "",
-  usn: "",
   collegeId: "",
   branchChange: {
     year: "",
@@ -86,11 +84,12 @@ export default function AdmissionDetails() {
         });
       }
     } catch (error) {
-      if (error.response?.status !== 404) {
-        enqueueSnackbar("Error fetching admission details", {
-          variant: "error",
-        });
-      }
+      // if (error.response?.status !== 404) {
+        console.error("Error fetching academic details:", error);
+        // enqueueSnackbar("Error fetching admission details", {
+        //   variant: "error",
+      //   // });
+      // }
     } finally {
       setIsDataFetched(true);
     }
@@ -102,8 +101,28 @@ export default function AdmissionDetails() {
 
   const onSubmit = async (data) => {
     try {
+      // Clean up empty strings and null values
+      const cleanedData = Object.entries(data).reduce((acc, [key, value]) => {
+        if (key === 'branchChange') {
+          // Handle branchChange object
+          acc[key] = Object.entries(value).reduce((branchAcc, [branchKey, branchValue]) => {
+            if (branchValue !== null && branchValue !== '') {
+              branchAcc[branchKey] = branchValue;
+            }
+            return branchAcc;
+          }, {});
+        } else if (key === 'documentsSubmitted') {
+          // Keep documentsSubmitted array as is
+          acc[key] = value;
+        } else if (value !== null && value !== '') {
+          // Keep non-empty values
+          acc[key] = value;
+        }
+        return acc;
+      }, {});
+
       const payload = {
-        ...data,
+        ...cleanedData,
         userId: menteeId || user?._id,
       };
 
@@ -113,7 +132,7 @@ export default function AdmissionDetails() {
       });
     } catch (error) {
       console.error("Error saving admission details:", error);
-      enqueueSnackbar("Failed to save admission details.", {
+      enqueueSnackbar(error.response?.data?.message || "Failed to save admission details.", {
         variant: "error",
       });
     }
@@ -150,16 +169,6 @@ export default function AdmissionDetails() {
               >
                 <RHFTextField name="admissionYear" label="Admission Year" />
                 <RHFTextField name="branch" label="Branch" />
-                <RHFSelect name="semester" label="Semester">
-                  <option value="" />
-                  {["1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th"].map(
-                    (option) => (
-                      <option key={option} value={option}>
-                        {option}
-                      </option>
-                    )
-                  )}
-                </RHFSelect>
                 <RHFSelect name="admissionType" label="Type of Admission">
                   <option value="" />
                   {["COMEDK", "CET", "MANAGEMENT", "SNQ"].map((option) => (
@@ -169,12 +178,11 @@ export default function AdmissionDetails() {
                   ))}
                 </RHFSelect>
                 <RHFTextField name="category" label="Category" />
-                <RHFTextField name="usn" label="USN (University Seat Number)" />
                 <RHFTextField name="collegeId" label="College ID Number" />
               </Box>
 
               <Typography variant="h6" sx={{ mt: 3 }}>
-                Change of Branch (if applicable)
+                change of Branch (if applicable)
               </Typography>
               <Divider sx={{ mb: 3 }} />
 

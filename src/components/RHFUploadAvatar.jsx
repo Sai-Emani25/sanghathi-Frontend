@@ -34,8 +34,8 @@ export default function RHFUploadAvatar({ name, value, onChange, ...other }) {
 
   const onDrop = useCallback(async (acceptedFiles) => {
     if (!acceptedFiles || acceptedFiles.length === 0) {
-      console.log('No files accepted');
-      return;
+      enqueueSnackbar('File exceeds limit', { variant: 'warning' });
+      return false;
     }
     
     const file = acceptedFiles[0];

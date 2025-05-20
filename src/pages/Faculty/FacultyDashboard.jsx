@@ -292,13 +292,13 @@ const FacultyDashboard = () => {
               />
             </Grid>
             
-            <Grid item xs={12} sm={6} md={isLight ? 6 : 6} lg={isLight ? 4 : 4}>
+            {/* <Grid item xs={12} sm={6} md={isLight ? 6 : 6} lg={isLight ? 4 : 4}>
               <StudentTile
                 title="Meetings"
                 icon={<EventNoteIcon />}
                 link="/meetings"
               />
-            </Grid>
+            </Grid> */}
             
             <Grid item xs={12} sm={6} md={isLight ? 6 : 6} lg={isLight ? 4 : 4}>
               <StudentTile

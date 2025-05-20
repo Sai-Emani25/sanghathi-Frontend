@@ -43,7 +43,7 @@ const facultyNavConfig = [
   { text: "Home", icon: <HomeOutlinedIcon />, link: "/faculty/dashboard" },
   { text: "My Mentees", icon: <PeopleIcon />, link: "/mentees" },
   { text: "Threads", icon: <QuestionAnswerOutlinedIcon />, link: "/threads" },
-  { text: "Meetings", icon: <EventOutlinedIcon />, link: "/meetings" },
+  // { text: "Meetings", icon: <EventOutlinedIcon />, link: "/meetings" },
   { text: "Campus Buddy", icon: <HdrStrongIcon />, link: "/campus-buddy" },
   { text: "Settings", icon: <SettingsOutlinedIcon />, link: "/settings" },
 ];
@@ -51,7 +51,7 @@ const facultyNavConfig = [
 const studentNavConfig = [
   { text: "Home", icon: <HomeOutlinedIcon />, link: "/" },
   { text: "Threads", icon: <QuestionAnswerOutlinedIcon />, link: "/threads" },
-  { text: "Meetings", icon: <EventOutlinedIcon />, link: "/meetings" },
+  // { text: "Meetings", icon: <EventOutlinedIcon />, link: "/meetings" },
   { text: "Mentor Details", icon: <PersonOutlinedIcon />, link: "/mentor-details" },
   { text: "Campus Buddy", icon: <HdrStrongIcon />, link: "/campus-buddy" },
   { text: "Settings", icon: <SettingsOutlinedIcon />, link: "/settings" },

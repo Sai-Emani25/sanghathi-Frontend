@@ -88,9 +88,9 @@ export default function ContactDetails({ userId: propUserId, colorMode }) {
         }
       } catch (error) {
         console.error("Error fetching contact details:", error);
-        if (error.response?.status !== 404) {
-          enqueueSnackbar(error.message || "Failed to load contact details", { variant: "error" });
-        }
+        // if (error.response?.status !== 404) {
+        //   enqueueSnackbar(error.message || "Failed to load contact details", { variant: "error" });
+        // }
       }
     };
 

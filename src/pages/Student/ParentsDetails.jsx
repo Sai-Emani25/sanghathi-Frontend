@@ -118,9 +118,9 @@ export default function ParentsDetails() {
       }
     } catch (error) {
       console.error("Error fetching parent details:", error);
-      if (error.response?.status !== 404) {
-        enqueueSnackbar("Error fetching parent details", { variant: "error" });
-      }
+      // if (error.response?.status !== 404) {
+      //   enqueueSnackbar("Error fetching parent details", { variant: "error" });
+      // }
     } finally {
       setIsDataFetched(true);
     }
