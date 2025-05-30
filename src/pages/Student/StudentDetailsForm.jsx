@@ -298,11 +298,6 @@ export default function StudentDetailsForm({ colorMode, menteeId, isAdminEdit })
       const currentPhoto = watch('studentProfile.photo');
       let photoUrl = currentPhoto;
   
-      // console.log('[Image Upload] Starting submission process');
-      // console.log('[Image Upload] Current photo type:', typeof currentPhoto);
-      // console.log('[Image Upload] Is data:image?', currentPhoto?.substring(0, 20));
-      // console.log('[Image Upload] Is Cloudinary URL?', isCloudinaryUrl(currentPhoto));
-  
       // If uploading a new image (base64)
       if (typeof currentPhoto === 'string' && 
           currentPhoto.includes('data:image') && 
@@ -310,69 +305,60 @@ export default function StudentDetailsForm({ colorMode, menteeId, isAdminEdit })
         
         // Get the current stored profile from the database to check for existing Cloudinary image
         try {
-          // console.log('[Image Delete] Fetching current profile data');
           const currentProfileResponse = await api.get(`students/profile/${menteeId || user._id}`);
           const currentStoredPhotoUrl = currentProfileResponse.data?.data?.studentProfile?.photo;
           
-          console.log('[Image Delete] Current stored photo URL:', {
-            exists: !!currentStoredPhotoUrl,
-            isCloudinary: isCloudinaryUrl(currentStoredPhotoUrl),
-            url: currentStoredPhotoUrl?.substring(0, 100)
-          });
-  
           // Delete the existing Cloudinary image if it exists
           if (isCloudinaryUrl(currentStoredPhotoUrl)) {
             const publicId = getCloudinaryPublicId(currentStoredPhotoUrl);
-            console.log('[Image Delete] Extracted public ID:', publicId);
-  
+            
             if (publicId) {
               try {
-                // console.log('[Image Delete] Attempting to delete image with public ID:', publicId);
                 const deleteResponse = await api.delete(`v1/upload/profile-image/${encodeURIComponent(publicId)}`);
-                // console.log('[Image Delete] Delete response:', deleteResponse.data);
+                if (deleteResponse.data.status !== 'success') {
+                  throw new Error('Failed to delete old image');
+                }
+                console.log('[Image Delete] Successfully deleted old image:', publicId);
               } catch (deleteError) {
                 console.error('[Image Delete] Error deleting image:', {
                   status: deleteError.response?.status,
                   message: deleteError.response?.data?.message || deleteError.message,
                   publicId
                 });
-                // Continue with upload even if delete fails
+                // Don't continue with upload if deletion fails
+                enqueueSnackbar('Failed to delete old image. Please try again.', { variant: 'error' });
+                return;
               }
             }
+          }
+  
+          // Then upload the new image
+          try {
+            const uploadResponse = await api.post('v1/upload/profile-image', {
+              image: currentPhoto
+            });
+            
+            const cloudinaryUrl = uploadResponse.data?.data?.imageUrl || uploadResponse.data?.imageUrl;
+            if (!cloudinaryUrl) {
+              throw new Error('No image URL received from server');
+            }
+            
+            photoUrl = cloudinaryUrl;
+            console.log('[Image Upload] New image uploaded successfully:', photoUrl.substring(0, 100));
+          } catch (uploadError) {
+            console.error('[Image Upload] Error uploading new image:', {
+              status: uploadError.response?.status,
+              message: uploadError.response?.data?.message || uploadError.message
+            });
+            enqueueSnackbar('Failed to upload new photo', { variant: 'error' });
+            return;
           }
         } catch (fetchError) {
           console.error('[Image Delete] Error fetching current profile:', {
             status: fetchError.response?.status,
             message: fetchError.response?.data?.message || fetchError.message
           });
-          // Continue with upload even if fetch fails
-        }
-  
-        // Then upload the new image
-        try {
-          console.log('[Image Upload] Starting new image upload');
-          const uploadResponse = await api.post('v1/upload/profile-image', {
-            image: currentPhoto
-          });
-          
-          console.log('[Image Upload] Upload response:', {
-            status: uploadResponse.status,
-            imageUrl: uploadResponse.data?.data?.imageUrl || uploadResponse.data?.imageUrl
-          });
-  
-          const cloudinaryUrl = uploadResponse.data?.data?.imageUrl || uploadResponse.data?.imageUrl;
-          if (!cloudinaryUrl) {
-            throw new Error('No image URL received from server');
-          }
-          
-          photoUrl = cloudinaryUrl;
-          console.log('[Image Upload] New image URL:', photoUrl.substring(0, 100));
-        } catch (uploadError) {
-          console.error('[Image Upload] Error uploading new image:', {
-            status: uploadError.response?.status,
-            message: uploadError.response?.data?.message || uploadError.message
-          });
-          enqueueSnackbar('Failed to upload new photo', { variant: 'error' });
+          enqueueSnackbar('Failed to fetch current profile', { variant: 'error' });
           return;
         }
       }
@@ -384,45 +370,13 @@ export default function StudentDetailsForm({ colorMode, menteeId, isAdminEdit })
         photo: photoUrl
       };
   
-      console.log('[StudentDetailsForm] Sending profile update:', {
-        userId: updateData.userId,
-        photo: updateData.photo?.substring(0, 100),
-        department: updateData.department,
-        sem: updateData.sem
-      });
+      const response = await api.post('students/profile', updateData);
   
-      // Update profile with the photo URL
-      try {
-        console.log('[StudentDetailsForm] Making API call to students/profile');
-        const response = await api.post('students/profile', updateData);
-  
-        console.log('[StudentDetailsForm] Profile update response:', {
-          status: response.status,
-          statusText: response.statusText,
-          data: response.data
-        });
-  
-        if (response.data.status === "success") {
-          console.log('[StudentDetailsForm] Profile update successful:', response.data);
-          enqueueSnackbar("Profile updated successfully", { variant: "success" });
-          await fetchStudentData(); // Refresh the data
-          
-          // Verify the photo URL was saved correctly
-          console.log('[StudentDetailsForm] Verifying saved photo URL:', {
-            savedUrl: response.data?.data?.studentProfile?.photo,
-            originalUrl: photoUrl
-          });
-        } else {
-          console.error('[StudentDetailsForm] Profile update failed:', response.data);
-          throw new Error('Profile update failed');
-        }
-      } catch (error) {
-        console.error('[StudentDetailsForm] Error in profile update API call:', {
-          message: error.message,
-          response: error.response,
-          stack: error.stack
-        });
-        throw error;
+      if (response.data.status === "success") {
+        enqueueSnackbar("Profile updated successfully", { variant: "success" });
+        await fetchStudentData(); // Refresh the data
+      } else {
+        throw new Error('Profile update failed');
       }
     } catch (error) {
       console.error("[StudentDetailsForm] Error in form submission:", error);

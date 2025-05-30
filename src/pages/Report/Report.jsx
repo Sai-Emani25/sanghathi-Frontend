@@ -37,7 +37,8 @@ import {
   CalendarMonth as CalendarIcon,
   Category as CategoryIcon,
   MoreHoriz as MoreHorizIcon,
-  Close as CloseIcon
+  Close as CloseIcon,
+  Chat as ChatIcon
 } from "@mui/icons-material";
 import { alpha, useTheme } from "@mui/material/styles";
 
@@ -45,6 +46,7 @@ import Page from "../../components/Page";
 import api from "../../utils/axios"; // replace with your actual API path
 import axios from "axios";
 import { useSnackbar } from "notistack";
+import { MessageList } from "../Thread/Message/Message";
 
 const baseURL = import.meta.env.VITE_PYTHON_API;
 
@@ -83,6 +85,8 @@ const Report = () => {
   const isLight = theme.palette.mode === 'light';
   const [threads, setThreads] = useState([]);
   const [openDialogThreadId, setOpenDialogThreadId] = useState(null);
+  const [openChatDialogThreadId, setOpenChatDialogThreadId] = useState(null);
+  const [chatMessages, setChatMessages] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
@@ -219,6 +223,25 @@ const Report = () => {
 
   const handleCloseDialog = () => {
     setOpenDialogThreadId(null);
+  };
+
+  const handleOpenChatDialog = async (threadId) => {
+    setOpenChatDialogThreadId(threadId);
+    try {
+      const response = await api.get(`/threads/${threadId}`);
+      if (response.status === 200) {
+        const { data } = response.data;
+        setChatMessages(data.thread.messages);
+      }
+    } catch (error) {
+      console.error(error);
+      enqueueSnackbar("Error loading chat messages", { variant: "error" });
+    }
+  };
+
+  const handleCloseChatDialog = () => {
+    setOpenChatDialogThreadId(null);
+    setChatMessages([]);
   };
 
   const statusColors = {
@@ -632,6 +655,7 @@ const Report = () => {
                       <TableCell sx={{ fontWeight: 'bold' }}>Closed date</TableCell>
                       <TableCell sx={{ fontWeight: 'bold' }}>Author</TableCell>
                       <TableCell sx={{ fontWeight: 'bold' }}>Members</TableCell>
+                      <TableCell sx={{ fontWeight: 'bold' }}>Actions</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
@@ -816,6 +840,27 @@ const Report = () => {
                             ))}
                           </AvatarGroup>
                         </TableCell>
+                        <TableCell>
+                          <Button
+                            variant="outlined"
+                            size="small"
+                            startIcon={<ChatIcon />}
+                            onClick={() => handleOpenChatDialog(thread._id)}
+                            sx={{
+                              borderRadius: 2,
+                              textTransform: 'none',
+                              color: isLight ? theme.palette.primary.main : theme.palette.info.main,
+                              borderColor: isLight ? theme.palette.primary.main : theme.palette.info.main,
+                              '&:hover': {
+                                backgroundColor: isLight 
+                                  ? alpha(theme.palette.primary.main, 0.08) 
+                                  : alpha(theme.palette.info.main, 0.1),
+                              }
+                            }}
+                          >
+                            View Chat
+                          </Button>
+                        </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
@@ -852,6 +897,56 @@ const Report = () => {
             )}
           </Box>
         </Paper>
+
+        {/* Chat Messages Dialog */}
+        <Dialog
+          open={Boolean(openChatDialogThreadId)}
+          onClose={handleCloseChatDialog}
+          maxWidth="md"
+          fullWidth
+          PaperProps={{
+            sx: {
+              borderRadius: 2,
+              minHeight: '60vh',
+              maxHeight: '80vh'
+            }
+          }}
+        >
+          <DialogContent sx={{ p: 0 }}>
+            <Box sx={{ p: 2, borderBottom: `1px solid ${alpha(theme.palette.divider, 0.1)}` }}>
+              <Typography variant="h6">
+                Chat Messages
+              </Typography>
+            </Box>
+            <Box sx={{ height: 'calc(100% - 64px)', overflow: 'auto' }}>
+              {chatMessages.length > 0 ? (
+                <MessageList 
+                  conversation={threads.find(t => t._id === openChatDialogThreadId)} 
+                  messages={chatMessages} 
+                />
+              ) : (
+                <Box sx={{ 
+                  display: 'flex', 
+                  justifyContent: 'center', 
+                  alignItems: 'center', 
+                  height: '100%',
+                  color: 'text.secondary'
+                }}>
+                  <Typography>No messages in this thread</Typography>
+                </Box>
+              )}
+            </Box>
+          </DialogContent>
+          <DialogActions sx={{ p: 2, borderTop: `1px solid ${alpha(theme.palette.divider, 0.1)}` }}>
+            <Button 
+              onClick={handleCloseChatDialog}
+              variant="outlined"
+              color={isLight ? "primary" : "info"}
+            >
+              Close
+            </Button>
+          </DialogActions>
+        </Dialog>
       </Container>
     </Page>
   );
