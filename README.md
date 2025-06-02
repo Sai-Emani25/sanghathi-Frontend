@@ -45,7 +45,13 @@ yarn install
 
 Create a `.env` file in the project root directory with the following variables:
 
-`VITE_API_BASE_URL=<your_api_base_url>`
+`VITE_API_URL=<your_api_base_url>/api`
+`VITE_SOCKET_URL=ws://<your_api_base_url>`
+`BASE_URL=https://<your_api_base_url>`
+`VITE_PYTHON_API=<your_api_base_url>`
+
+VITE_CLOUDINARY_CLOUD_NAME=<ClOUD_NAME>
+VITE_PYTHON_API=<VITE_PYTHON_API>
 
 Replace `<your_api_base_url>` with the base URL of your backend server.
 
@@ -68,6 +74,11 @@ To create a production build, run the following command:
 ````bash
 yarn build
 ````
+or
+
+````bash
+npm run build
+````
 
 After the build is completed, you can serve the production build using:
 
@@ -76,6 +87,19 @@ yarn serve
 ````
 
 This will start the production server, and you can access the application on `http://localhost:5000`.
+
+To deploy the changes to server use:
+
+````bash
+netlify deploy --prod
+````
+
+Incase of error: 'The term netlify is not recodnized' run the following command:
+
+````bash
+npm install netlify-cli -g
+````
+
 
 ## Contributing
 
