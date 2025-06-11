@@ -1,5 +1,5 @@
 import { Route, Routes, Navigate } from "react-router-dom";
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import ThemeProvider from "./theme";
 import LazyLoadWrapper from "./components/loader/LazyLoadWrapper";
 import Signup from "./pages/Users/Signup";
@@ -42,8 +42,22 @@ import StudentDashboard from "./pages/Faculty/StudentDashboard";
 import Settings from "./pages/Settings/Settings";
 import TYLScorecard from "./pages/Student/TYLScorecard";
 import MyChatBot from "./mychatbot";
+import { useLocation } from 'react-router-dom';
+import { initGA, trackPageView } from "./ga";
 // TODO : Need to remove routing logic from app component
 function App() {
+  // Track page views on route change using Google Analytics GA4
+  const location = useLocation();
+
+  useEffect(() => {
+    initGA(); // Initialize GA once on mount
+  }, []);
+
+  useEffect(() => {
+    trackPageView(location.pathname + location.search); // Track page changes
+  }, [location]);
+
+
   const { user } = useContext(AuthContext);
   return (
     <ThemeProvider>

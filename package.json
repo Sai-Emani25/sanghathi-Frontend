@@ -41,6 +41,7 @@
     "react-chatbotify": "^2.0.0-beta.33",
     "react-dom": "latest",
     "react-dropzone": "^12.0.4",
+    "react-ga4": "^2.1.0",
     "react-helmet-async": "^1.2.3",
     "react-hook-form": "^7.27.1",
     "react-lazy-load-image-component": "^1.5.1",
