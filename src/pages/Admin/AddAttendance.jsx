@@ -33,19 +33,43 @@ const AddAttendance = () => {
   const [errors, setErrors] = useState([]);
   const [file, setFile] = useState(null);
 
+  // Month mapping - handles both full names and abbreviations
+  const monthMap = {
+    'jan': 1, 'january': 1,
+    'feb': 2, 'february': 2,
+    'mar': 3, 'march': 3,
+    'apr': 4, 'april': 4,
+    'may': 5,
+    'jun': 6, 'june': 6,
+    'jul': 7, 'july': 7,
+    'aug': 8, 'august': 8,
+    'sep': 9, 'september': 9, 'sept': 9,
+    'oct': 10, 'october': 10,
+    'nov': 11, 'november': 11,
+    'dec': 12, 'december': 12
+  };
+
+  // Helper function to get month value
+  const getMonthValue = (monthInput) => {
+    if (!monthInput) return undefined;
+    const normalizedMonth = monthInput.toString().toLowerCase().trim();
+    return monthMap[normalizedMonth];
+  };
+
+
   const downloadTemplate = () => {
     const headers = [
-      "Name",
       "USN",
       "Sem",
       "Month",
+      "Mathematics Code",
       "Mathematics",
       "Mathematics Total",
+      "Science Code",
       "Science",
       "Science Total",
     ];
-    const exampleRow = ["John Doe", "USN123", "1", "1", "15", "20", "18", "20"];
-    const csvContent = Papa.unparse([headers, exampleRow], { quotes: true });
+    const csvContent = Papa.unparse([headers], { quotes: true });
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     const link = document.createElement("a");
     const url = URL.createObjectURL(blob);
@@ -96,24 +120,42 @@ const AddAttendance = () => {
           throw new Error("Missing required fields (USN, Sem, Month)");
         }
 
+        // Convert month name to number using case-insensitive matching
+        const monthValue = getMonthValue(row.Month);
+        if (monthValue === undefined) {
+          throw new Error(`Invalid month: ${row.Month}. Use month names like January, Jan, February, Feb, etc.`);
+        }
+
         const subjects = [];
         const headers = Object.keys(row).filter(
-          (key) => key !== "Name" && key !== "USN" && key !== "Sem" && key !== "Month"
+          (key) => key !== "USN" && key !== "Sem" && key !== "Month"
         );
 
-        for (let i = 0; i < headers.length; i += 2) {
-          const subjectHeader = headers[i];
-          const totalHeader = headers[i + 1];
+        // Process subjects in groups of 3 (code, name, total)
+        for (let i = 0; i < headers.length; i += 3) {
+          const subjectCodeHeader = headers[i];
+          const subjectHeader = headers[i + 1];
+          const totalHeader = headers[i + 2];
+          
           if (!totalHeader || !totalHeader.endsWith(" Total")) {
             throw new Error(`Invalid subject columns at ${subjectHeader}`);
           }
+          
           const subjectName = subjectHeader.replace(" Total", "");
+          const subjectCode = row[subjectCodeHeader];
           const attended = parseInt(row[subjectHeader], 10);
           const total = parseInt(row[totalHeader], 10);
+          
+          if (!subjectCode) {
+            throw new Error(`Missing subject code for ${subjectName}`);
+          }
+          
           if (isNaN(attended) || isNaN(total)) {
             throw new Error(`Invalid numbers for ${subjectName}`);
           }
+          
           subjects.push({
+            subjectCode,
             subjectName,
             attendedClasses: attended,
             totalClasses: total,
@@ -130,16 +172,25 @@ const AddAttendance = () => {
 
         const attendanceData = {
           semester: parseInt(row.Sem, 10),
-          month: parseInt(row.Month, 10),
+          month: monthValue,
           subjects,
         };
         console.log("Attendance Data: ", attendanceData);
 
-        await axios.post(`${BASE_URL}/students/attendance/${userId}`, attendanceData);
-        success++;
+        try {
+          await axios.post(`${BASE_URL}/students/attendance/${userId}`, attendanceData);
+          success++;
+        } catch (postError) {
+          const errorMessage = postError.response?.data?.message || 
+                             postError.response?.data?.error || 
+                             postError.message || 
+                             'Unknown error occurred';
+          throw new Error(`Failed to save attendance: ${errorMessage}`);
+        }
       } catch (error) {
         errors++;
         newErrors.push(`Row ${index + 1}: ${error.message}`);
+        console.error(`Error processing row ${index + 1}:`, error);
       }
     }
 
@@ -225,18 +276,24 @@ const AddAttendance = () => {
               py: 1,
             }}
           >
-            <Typography variant="body2" color="text.secondary">• Name - Student name</Typography>
             <Typography variant="body2" color="text.secondary">• USN - Student's USN (required)</Typography>
             <Typography variant="body2" color="text.secondary">• Sem - Semester number (required)</Typography>
-            <Typography variant="body2" color="text.secondary">• Month - Month number (1-12) (required)</Typography>
+            <Typography variant="body2" color="text.secondary">• Month - Month name: Jan, Feb, Mar, Apr, May, Jun, Jul, Aug, Sep, Oct, Nov, Dec(required)</Typography>
+            <Typography variant="body2" color="text.secondary">• Subject Code - For each subject</Typography>
             <Typography variant="body2" color="text.secondary">• Subject Name - For each subject</Typography>
             <Typography variant="body2" color="text.secondary">• Subject Name Total - Total classes for each subject</Typography>
           </Box>
           
           <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-            <strong>Important:</strong> For each subject, you need two columns: one for attended classes and one for total classes.
-            For example, "Mathematics" and "Mathematics Total".
+            <strong>Important:</strong> For each subject, you need three columns: one for subject code, one for subject name, and one for total classes.
+            For example, "Mathematics Code", "Mathematics", and "Mathematics Total".
           </Typography>
+
+          <Alert severity="info" sx={{ mb: 2 }}>
+            <Typography variant="body2">
+              <strong>Month values:</strong>Use specific month abbreviations (Jan, Feb, etc.)
+            </Typography>
+          </Alert>
 
           <Divider sx={{ my: 3 }} />
 

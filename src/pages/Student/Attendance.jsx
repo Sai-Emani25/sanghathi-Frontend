@@ -141,17 +141,25 @@ const Attendance = () => {
         const semesterData = attendanceData.find(s => s.semester === selectedSemester);
         if (!semesterData) return [];
 
-        const subjectsMap = new Map(); // Use a Map to ensure uniqueness
-        semesterData.months.forEach(monthData => {
-            monthData.subjects.forEach(subject => {
-                subjectsMap.set(subject.subjectName, {
-                    subjectName: subject.subjectName,
-                    subjectCode: subject.subjectCode || "N/A", // Ensure you have subjectCode in your model
+        // Get all subjects from all months in the selected semester
+        const allSubjects = semesterData.months.flatMap(monthData => monthData.subjects);
+        
+        // Create a Map to store unique subjects by subjectCode
+        const uniqueSubjects = new Map();
+        
+        // Process all subjects, keeping only the most recent entry for each subjectCode
+        allSubjects.forEach(subject => {
+            if (subject.subjectCode) {
+                uniqueSubjects.set(subject.subjectCode, {
+                    subjectCode: subject.subjectCode,
+                    subjectName: subject.subjectName
                 });
-            });
+            }
         });
 
-        return Array.from(subjectsMap.values());
+        // Convert Map to array and sort by subjectCode
+        return Array.from(uniqueSubjects.values())
+            .sort((a, b) => a.subjectCode.localeCompare(b.subjectCode));
     };
 
   return (
