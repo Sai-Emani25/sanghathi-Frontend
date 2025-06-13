@@ -41,9 +41,8 @@ const AddIat = () => {
       "SubjectName",
       "IAT1",
       "IAT2",
-      "IAT3",
     ];
-    const exampleRow = ["USN123", "1", "CS101", "Introduction to Programming", "85", "92", "78"];
+    const exampleRow = ["USN123", "1", "CS101", "Introduction to Programming", "85", "92"];
     const csvContent = Papa.unparse([headers, exampleRow], { quotes: true });
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     const link = document.createElement("a");
@@ -242,7 +241,6 @@ const AddIat = () => {
             <Typography variant="body2" color="text.secondary">• SubjectName - Course name</Typography>
             <Typography variant="body2" color="text.secondary">• IAT1 - First IAT marks</Typography>
             <Typography variant="body2" color="text.secondary">• IAT2 - Second IAT marks</Typography>
-            <Typography variant="body2" color="text.secondary">• IAT3 - Third IAT marks</Typography>
           </Box>
 
           <Divider sx={{ my: 3 }} />
