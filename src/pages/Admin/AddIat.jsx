@@ -41,8 +41,9 @@ const AddIat = () => {
       "SubjectName",
       "IAT1",
       "IAT2",
+      "Avg"
     ];
-    const exampleRow = ["USN123", "1", "CS101", "Introduction to Programming", "85", "92"];
+    const exampleRow = ["USN123", "1", "CS101", "Introduction to Programming", "50", "50","50" ];
     const csvContent = Papa.unparse([headers, exampleRow], { quotes: true });
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     const link = document.createElement("a");
@@ -118,7 +119,7 @@ const AddIat = () => {
         subjectName: row.SubjectName,
         iat1: row.IAT1 !== undefined ? parseInt(row.IAT1, 10) : undefined, // Parse, handle undefined
         iat2: row.IAT2 !== undefined ? parseInt(row.IAT2, 10) : undefined,
-        iat3: row.IAT3 !== undefined ? parseInt(row.IAT3, 10) : undefined,
+        avg: row.Avg !== undefined ? parseInt(row.Avg, 10) : undefined,
       });
     }
 

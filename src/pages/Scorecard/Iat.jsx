@@ -98,9 +98,9 @@ const Iat = () => {
         if (!subject) return "";
 
         switch (iatNumber) {
-            case 1: return subject.iat1 || ""; // Handle potential undefined/null
+            case 1: return subject.iat1 || "";
             case 2: return subject.iat2 || "";
-            case 3: return subject.iat3 || "";
+            case 3: return subject.avg || "";
             default: return "";
         }
     };
@@ -140,9 +140,9 @@ const Iat = () => {
               <TableCell sx={{ border: "1px solid gray" }}>
                 Subject Name
               </TableCell>
-              <TableCell sx={{ border: "1px solid gray" }}>IAT 1</TableCell>
-              <TableCell sx={{ border: "1px solid gray" }}>IAT 2</TableCell>
-              <TableCell sx={{ border: "1px solid gray" }}>IAT 3</TableCell>
+              <TableCell sx={{ border: "1px solid gray" }}>IAT 1(Out of 50)</TableCell>
+              <TableCell sx={{ border: "1px solid gray" }}>IAT 2(Out of 50)</TableCell>
+              <TableCell sx={{ border: "1px solid gray" }}>IAT Avg(Out of 50)</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
