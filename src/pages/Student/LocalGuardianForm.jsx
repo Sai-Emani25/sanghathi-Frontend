@@ -30,6 +30,12 @@ export default function LocalGuardianForm() {
   const menteeId = searchParams.get('menteeId');
   const [isDataFetched, setIsDataFetched] = useState(false);
 
+  // Check if the current user is faculty
+  const isFaculty = user?.roleName === "faculty";
+  
+  // Fields should be editable only if user is not faculty
+  const isEditable = !isFaculty;
+
   const methods = useForm({
     defaultValues: DEFAULT_VALUES,
   });
@@ -89,6 +95,13 @@ export default function LocalGuardianForm() {
 
   return (
     <FormProvider methods={methods} onSubmit={handleSubmit(onSubmit)}>
+      {isFaculty && (
+        <Box sx={{ mb: 2, p: 2, bgcolor: 'warning.light', borderRadius: 1 }}>
+          <Typography variant="body2" color="warning.dark">
+            You are viewing this student profile in read-only mode. Only students can edit their own profiles.
+          </Typography>
+        </Box>
+      )}
       <Card sx={{ p: 3 }}>
         <Typography variant="h5" gutterBottom>Local Guardian Details</Typography>
         <Divider sx={{ mb: 3 }} />
@@ -108,6 +121,10 @@ export default function LocalGuardianForm() {
                     fullWidth 
                     multiline={field === "residenceAddress"} 
                     rows={field === "residenceAddress" ? 4 : 1} 
+                    disabled={!isEditable}
+                    InputProps={{
+                      readOnly: !isEditable,
+                    }}
                   />
                 </Grid>
               ))}
@@ -118,17 +135,19 @@ export default function LocalGuardianForm() {
                 <LoadingButton 
                   variant="outlined" 
                   onClick={() => reset(DEFAULT_VALUES)} 
-                  disabled={isSubmitting}
+                  disabled={isSubmitting || !isEditable}
                 >
                   Reset
                 </LoadingButton>
-                <LoadingButton 
-                  type="submit" 
-                  variant="contained" 
-                  loading={isSubmitting}
-                >
-                  Save
-                </LoadingButton>
+                {isEditable && (
+                  <LoadingButton 
+                    type="submit" 
+                    variant="contained" 
+                    loading={isSubmitting}
+                  >
+                    Save
+                  </LoadingButton>
+                )}
               </Box>
             </Stack>
           </>
