@@ -114,43 +114,45 @@ export default function LocalGuardianForm() {
           <>
             <Grid container spacing={2}>
               {Object.keys(DEFAULT_VALUES).map((field) => (
-                <Grid item xs={12} md={field === "residenceAddress" ? 12 : 4} key={field}>
-                  <RHFTextField
-                  name="residenceAddress"
-                  label="Residence Address"
-                  fullWidth
-                  multiline
-                  rows={4}
-                  disabled={!isEditable}
-                  rules={{ required: "Residence address is required" }}
-                />
-              </Grid>
+                {/* Manual residenceAddress field */}
+<Grid item xs={12} key="residenceAddress">
+  <RHFTextField
+    name="residenceAddress"
+    label="Residence Address"
+    fullWidth
+    multiline
+    rows={4}
+    disabled={!isEditable}
+    rules={{ required: "Residence address is required" }}
+  />
+</Grid>
 
-              {/* Auto-generate optional fields */}
-              {Object.keys(DEFAULT_VALUES)
-                .filter(
-                  (f) =>
-                    ![
-                      "relationWithGuardian",
-                      "mobileNumber",
-                      "residenceAddress",
-                    ].includes(f)
-                )
-                .map((field) => (
-                  <Grid
-                    item
-                    xs={12}
-                    md={field === "residenceAddress" ? 12 : 4}
-                    key={field}
-                  >
-                    <RHFTextField
-                      name={field}
-                      label={field.split(/(?=[A-Z])/).join(" ")}
-                      fullWidth
-                      disabled={!isEditable}
-                    />
-                  </Grid>
-                ))}
+{/* Auto-generate the rest */}
+{Object.keys(DEFAULT_VALUES)
+  .filter(
+    (f) =>
+      ![
+        "relationWithGuardian",
+        "mobileNumber",
+        "residenceAddress", // <-- exclude here
+      ].includes(f)
+  )
+  .map((field) => (
+    <Grid item xs={12} md={4} key={field}>
+      <RHFTextField
+        name={field}
+        label={field.split(/(?=[A-Z])/).join(" ")}
+        fullWidth
+        disabled={!isEditable}
+        rules={
+          ["firstName", "lastName", "email"].includes(field)
+            ? { required: `${field} is required` }
+            : {}
+        }
+      />
+    </Grid>
+  ))}
+
             </Grid>
 
             <Stack spacing={3} alignItems="flex-end" sx={{ mt: 3 }}>
