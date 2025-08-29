@@ -23,6 +23,21 @@ const DEFAULT_VALUES = {
   pincode: "",
 };
 
+const LABELS = {
+  firstName: "First Name",
+  middleName: "Middle Name",
+  lastName: "Last Name",
+  email: "Email",
+  relationWithGuardian: "Relation with Guardian",
+  mobileNumber: "Mobile Number",
+  phoneNumber: "Phone Number",
+  residenceAddress: "Residence Address",
+  taluka: "Taluka",
+  district: "District",
+  state: "State",
+  pincode: "Pincode",
+};
+
 export default function LocalGuardianForm() {
   const { enqueueSnackbar } = useSnackbar();
   const { user } = useContext(AuthContext);
@@ -30,14 +45,21 @@ export default function LocalGuardianForm() {
   const menteeId = searchParams.get("menteeId");
   const [isDataFetched, setIsDataFetched] = useState(false);
 
+  // Check if the current user is faculty
   const isFaculty = user?.roleName === "faculty";
+
+  // Fields should be editable only if user is not faculty
   const isEditable = !isFaculty;
 
   const methods = useForm({
     defaultValues: DEFAULT_VALUES,
   });
 
-  const { handleSubmit, reset, formState: { isSubmitting } } = methods;
+  const {
+    handleSubmit,
+    reset,
+    formState: { isSubmitting },
+  } = methods;
 
   useEffect(() => {
     const fetchLocalGuardian = async () => {
@@ -46,6 +68,7 @@ export default function LocalGuardianForm() {
         if (!userId) return;
 
         const response = await api.get(`/v1/local-guardians/${userId}`);
+
         if (response.data.status === "success") {
           if (response.data.data?.localGuardian) {
             reset(response.data.data.localGuardian);
@@ -57,7 +80,9 @@ export default function LocalGuardianForm() {
         if (error.response?.status === 404) {
           reset(DEFAULT_VALUES);
         } else {
-          enqueueSnackbar("Error fetching guardian details", { variant: "error" });
+          enqueueSnackbar("Error fetching guardian details", {
+            variant: "error",
+          });
         }
       } finally {
         setIsDataFetched(true);
@@ -76,7 +101,9 @@ export default function LocalGuardianForm() {
       }
 
       await api.post("/v1/local-guardians", { ...data, userId });
-      enqueueSnackbar("Guardian details saved successfully!", { variant: "success" });
+      enqueueSnackbar("Guardian details saved successfully!", {
+        variant: "success",
+      });
     } catch (error) {
       enqueueSnackbar(
         error.response?.data?.message || "Error saving guardian details",
@@ -90,11 +117,11 @@ export default function LocalGuardianForm() {
       {isFaculty && (
         <Box sx={{ mb: 2, p: 2, bgcolor: "warning.light", borderRadius: 1 }}>
           <Typography variant="body2" color="warning.dark">
-            You are viewing this student profile in read-only mode. Only students can edit their own profiles.
+            You are viewing this student profile in read-only mode. Only
+            students can edit their own profiles.
           </Typography>
         </Box>
       )}
-
       <Card sx={{ p: 3 }}>
         <Typography variant="h5" gutterBottom>
           Local Guardian Details
@@ -108,98 +135,29 @@ export default function LocalGuardianForm() {
         ) : (
           <>
             <Grid container spacing={2}>
-              {/* Required fields with validation */}
-              <Grid item xs={12} md={4}>
-                <RHFTextField
-                  name="firstName"
-                  id="firstName"
-                  label="First Name"
-                  fullWidth
-                  disabled={!isEditable}
-                  rules={{ required: "First name is required" }}
-                />
-              </Grid>
-
-              <Grid item xs={12} md={4}>
-                <RHFTextField
-                  name="lastName"
-                  id="lastName"
-                  label="Last Name"
-                  fullWidth
-                  disabled={!isEditable}
-                  rules={{ required: "Last name is required" }}
-                />
-              </Grid>
-
-              <Grid item xs={12} md={4}>
-                <RHFTextField
-                  name="email"
-                  id="email"
-                  label="Email"
-                  type="email"
-                  fullWidth
-                  disabled={!isEditable}
-                  rules={{
-                    required: "Email is required",
-                    pattern: {
-                      value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                      message: "Enter a valid email",
-                    },
-                  }}
-                />
-              </Grid>
-
-              <Grid item xs={12} md={4}>
-                <RHFTextField
-                  name="mobileNumber"
-                  id="mobileNumber"
-                  label="Mobile Number"
-                  type="tel"
-                  fullWidth
-                  disabled={!isEditable}
-                  rules={{
-                    required: "Mobile number is required",
-                    pattern: {
-                      value: /^[0-9]{10}$/,
-                      message: "Enter a valid 10-digit number",
-                    },
-                  }}
-                />
-              </Grid>
-
-              <Grid item xs={12}>
-                <RHFTextField
-                  name="residenceAddress"
-                  id="residenceAddress"
-                  label="Residence Address"
-                  fullWidth
-                  multiline
-                  rows={4}
-                  disabled={!isEditable}
-                  rules={{ required: "Residence address is required" }}
-                />
-              </Grid>
-
-              {/* Auto-generate remaining optional fields */}
-              {Object.keys(DEFAULT_VALUES)
-                .filter(
-                  (f) =>
-                    !["firstName", "lastName", "email", "mobileNumber", "residenceAddress"].includes(f)
-                )
-                .map((field) => (
-                  <Grid item xs={12} md={4} key={field}>
-                    <RHFTextField
-                      name={field}
-                      id={field}
-                      label={field.split(/(?=[A-Z])/).join(" ")}
-                      fullWidth
-                      disabled={!isEditable}
-                    />
-                  </Grid>
-                ))}
+              {Object.keys(DEFAULT_VALUES).map((field) => (
+                <Grid
+                  item
+                  xs={12}
+                  md={field === "residenceAddress" ? 12 : 4}
+                  key={field}
+                >
+                  <RHFTextField
+                    name={field}
+                    id={field} // ✅ Added id for accessibility + autofill
+                    label={LABELS[field] || field}
+                    fullWidth
+                    multiline={field === "residenceAddress"}
+                    rows={field === "residenceAddress" ? 4 : 1}
+                    disabled={!isEditable}
+                    InputProps={{
+                      readOnly: !isEditable,
+                    }}
+                  />
+                </Grid>
+              ))}
             </Grid>
 
-            {/* Actions */}
             <Stack spacing={3} alignItems="flex-end" sx={{ mt: 3 }}>
               <Box display="flex" gap={1}>
                 <LoadingButton
