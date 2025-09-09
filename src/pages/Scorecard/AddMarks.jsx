@@ -64,7 +64,7 @@ const AddMarks = () => {
     const row = csvData[i];
     if (row.length >= 2 && row[0] && row[1]) {
       const semester = parseInt(row[0]);
-      const usn = row[1].trim();
+      const usn = row[1].trim().toUpperCase();
       const subjects = [];
 
       // Last two fields are Passing Date and SGPA
