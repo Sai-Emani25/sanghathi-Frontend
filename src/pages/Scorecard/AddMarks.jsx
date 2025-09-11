@@ -41,8 +41,10 @@ const AddMarks = () => {
     for (let i = 1; i <= 2; i++) {
       headers.push(`Subject Code ${i}`, `Subject Name ${i}`, `Internal Marks ${i}`, `External Marks ${i}`, `Total ${i}`, `Attempt ${i}`, `Result ${i}`);
     }
+    headers.push(`Passing Date`);
+    headers.push(`sgpa`);
     const csvContent = [headers.join(',')];
-    const row1 = ["1", "1CR24IS001", "BMATS101", "MATHEMATICS FOR CSE STREAM-I", "45", "37", "82", "1", "P", "BPHYS102", "PHYSICS FOR CSE STREAM", "44", "29", "73", "1", "P"];
+    const row1 = [];
     csvContent.push(row1.join(','));
   
     // Create blob and download
