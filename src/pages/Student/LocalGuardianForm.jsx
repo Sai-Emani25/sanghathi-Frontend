@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext } from "react";
+import { useEffect, useState, useContext, useCallback } from "react";
 import { useSnackbar } from "notistack";
 import { useForm } from "react-hook-form";
 import { Box, Grid, Card, Stack, Typography, Divider } from "@mui/material";
@@ -23,21 +23,6 @@ const DEFAULT_VALUES = {
   pincode: "",
 };
 
-const LABELS = {
-  firstName: "First Name",
-  middleName: "Middle Name",
-  lastName: "Last Name",
-  email: "Email",
-  relationWithGuardian: "Relation with Guardian",
-  mobileNumber: "Mobile Number",
-  phoneNumber: "Phone Number",
-  residenceAddress: "Residence Address",
-  taluka: "Taluka",
-  district: "District",
-  state: "State",
-  pincode: "Pincode",
-};
-
 export default function LocalGuardianForm() {
   const { enqueueSnackbar } = useSnackbar();
   const { user } = useContext(AuthContext);
@@ -45,10 +30,8 @@ export default function LocalGuardianForm() {
   const menteeId = searchParams.get("menteeId");
   const [isDataFetched, setIsDataFetched] = useState(false);
 
-  // Check if the current user is faculty
+  // Faculty read-only check
   const isFaculty = user?.roleName === "faculty";
-
-  // Fields should be editable only if user is not faculty
   const isEditable = !isFaculty;
 
   const methods = useForm({
@@ -61,36 +44,36 @@ export default function LocalGuardianForm() {
     formState: { isSubmitting },
   } = methods;
 
-  useEffect(() => {
-    const fetchLocalGuardian = async () => {
-      try {
-        const userId = menteeId || user?._id;
-        if (!userId) return;
+  const fetchLocalGuardian = useCallback(async () => {
+    try {
+      const userId = menteeId || user?._id;
+      if (!userId) return;
 
-        const response = await api.get(`/v1/local-guardians/${userId}`);
+      const response = await api.get(`/v1/local-guardians/${userId}`);
 
-        if (response.data.status === "success") {
-          if (response.data.data?.localGuardian) {
-            reset(response.data.data.localGuardian);
-          } else {
-            reset(DEFAULT_VALUES);
-          }
-        }
-      } catch (error) {
-        if (error.response?.status === 404) {
-          reset(DEFAULT_VALUES);
+      if (response.data.status === "success") {
+        if (response.data.data?.localGuardian) {
+          reset(response.data.data.localGuardian);
         } else {
-          enqueueSnackbar("Error fetching guardian details", {
-            variant: "error",
-          });
+          reset(DEFAULT_VALUES);
         }
-      } finally {
-        setIsDataFetched(true);
       }
-    };
-
-    fetchLocalGuardian();
+    } catch (error) {
+      if (error.response?.status === 404) {
+        reset(DEFAULT_VALUES);
+      } else {
+        enqueueSnackbar("Error fetching guardian details", {
+          variant: "error",
+        });
+      }
+    } finally {
+      setIsDataFetched(true);
+    }
   }, [menteeId, user, reset, enqueueSnackbar]);
+
+  useEffect(() => {
+    fetchLocalGuardian();
+  }, [fetchLocalGuardian]);
 
   const onSubmit = async (data) => {
     try {
@@ -122,6 +105,7 @@ export default function LocalGuardianForm() {
           </Typography>
         </Box>
       )}
+
       <Card sx={{ p: 3 }}>
         <Typography variant="h5" gutterBottom>
           Local Guardian Details
@@ -133,33 +117,133 @@ export default function LocalGuardianForm() {
             <Typography>Loading guardian details...</Typography>
           </Box>
         ) : (
-          <>
-            <Grid container spacing={2}>
-              {Object.keys(DEFAULT_VALUES).map((field) => (
-                <Grid
-                  item
-                  xs={12}
-                  md={field === "residenceAddress" ? 12 : 4}
-                  key={field}
-                >
-                  <RHFTextField
-                    name={field}
-                    id={field} // ✅ Added id for accessibility + autofill
-                    label={LABELS[field] || field}
-                    fullWidth
-                    multiline={field === "residenceAddress"}
-                    rows={field === "residenceAddress" ? 4 : 1}
-                    disabled={!isEditable}
-                    InputProps={{
-                      readOnly: !isEditable,
-                    }}
-                  />
-                </Grid>
-              ))}
+          <Grid container spacing={2}>
+            <Grid item xs={12} md={4}>
+              <RHFTextField
+                name="firstName"
+                label="First Name"
+                fullWidth
+                required
+                disabled={!isEditable}
+                InputProps={{ readOnly: !isEditable }}
+              />
+            </Grid>
+            <Grid item xs={12} md={4}>
+              <RHFTextField
+                name="middleName"
+                label="Middle Name"
+                fullWidth
+                disabled={!isEditable}
+                InputProps={{ readOnly: !isEditable }}
+              />
+            </Grid>
+            <Grid item xs={12} md={4}>
+              <RHFTextField
+                name="lastName"
+                label="Last Name"
+                fullWidth
+                required
+                disabled={!isEditable}
+                InputProps={{ readOnly: !isEditable }}
+              />
             </Grid>
 
-            <Stack spacing={3} alignItems="flex-end" sx={{ mt: 3 }}>
-              <Box display="flex" gap={1}>
+            <Grid item xs={12} md={6}>
+              <RHFTextField
+                name="email"
+                label="Email"
+                type="email"
+                fullWidth
+                required
+                disabled={!isEditable}
+                InputProps={{ readOnly: !isEditable }}
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <RHFTextField
+                name="relationWithGuardian"
+                label="Relation with Guardian"
+                fullWidth
+                required
+                disabled={!isEditable}
+                InputProps={{ readOnly: !isEditable }}
+              />
+            </Grid>
+
+            <Grid item xs={12} md={6}>
+              <RHFTextField
+                name="mobileNumber"
+                label="Mobile Number"
+                type="tel"
+                fullWidth
+                required
+                disabled={!isEditable}
+                InputProps={{ readOnly: !isEditable }}
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <RHFTextField
+                name="phoneNumber"
+                label="Phone Number"
+                type="tel"
+                fullWidth
+                disabled={!isEditable}
+                InputProps={{ readOnly: !isEditable }}
+              />
+            </Grid>
+
+            <Grid item xs={12}>
+              <RHFTextField
+                name="residenceAddress"
+                label="Residence Address"
+                fullWidth
+                multiline
+                rows={3}
+                required
+                disabled={!isEditable}
+                InputProps={{ readOnly: !isEditable }}
+              />
+            </Grid>
+
+            <Grid item xs={12} md={3}>
+              <RHFTextField
+                name="taluka"
+                label="Taluka"
+                fullWidth
+                disabled={!isEditable}
+                InputProps={{ readOnly: !isEditable }}
+              />
+            </Grid>
+            <Grid item xs={12} md={3}>
+              <RHFTextField
+                name="district"
+                label="District"
+                fullWidth
+                disabled={!isEditable}
+                InputProps={{ readOnly: !isEditable }}
+              />
+            </Grid>
+            <Grid item xs={12} md={3}>
+              <RHFTextField
+                name="state"
+                label="State"
+                fullWidth
+                disabled={!isEditable}
+                InputProps={{ readOnly: !isEditable }}
+              />
+            </Grid>
+            <Grid item xs={12} md={3}>
+              <RHFTextField
+                name="pincode"
+                label="Pincode"
+                fullWidth
+                disabled={!isEditable}
+                InputProps={{ readOnly: !isEditable }}
+              />
+            </Grid>
+
+            <Grid item xs={12}>
+              <Stack spacing={2} direction="row" justifyContent="flex-end">
                 <LoadingButton
                   variant="outlined"
                   onClick={() => reset(DEFAULT_VALUES)}
@@ -176,12 +260,11 @@ export default function LocalGuardianForm() {
                     Save
                   </LoadingButton>
                 )}
-              </Box>
-            </Stack>
-          </>
+              </Stack>
+            </Grid>
+          </Grid>
         )}
       </Card>
     </FormProvider>
   );
 }
-
