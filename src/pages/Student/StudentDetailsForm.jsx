@@ -65,7 +65,8 @@ const getCloudinaryPublicId = (url) => {
   }
 };
 
-export default function StudentDetailsForm({ colorMode, menteeId, isAdminEdit }) {
+export default function 
+StudentDetailsForm({ colorMode, menteeId, isAdminEdit }) {
   const { enqueueSnackbar } = useSnackbar();
   const { user } = useContext(AuthContext);
   const [isDataFetched, setIsDataFetched] = useState(false);
@@ -466,9 +467,8 @@ export default function StudentDetailsForm({ colorMode, menteeId, isAdminEdit })
                 name="studentProfile.department"
                 label="Department"
                 fullWidth
-                disabled={!isEditable}
                 InputProps={{
-                  readOnly: !isEditable,
+                  readOnly: true,
                 }}
                 InputLabelProps={{
                   shrink: shouldShrink("studentProfile.department"),
@@ -527,9 +527,8 @@ export default function StudentDetailsForm({ colorMode, menteeId, isAdminEdit })
                   label="College Email"
                   type="email"
                   fullWidth
-                  disabled={!isEditable}
                   InputProps={{
-                    readOnly: !isEditable,
+                    readOnly: true,
                   }}
                   InputLabelProps={{
                     shrink: shouldShrink("studentProfile.email"),
@@ -541,9 +540,8 @@ export default function StudentDetailsForm({ colorMode, menteeId, isAdminEdit })
                   name="studentProfile.usn"
                   label="USN"
                   fullWidth
-                  disabled={!isEditable}
                   InputProps={{
-                    readOnly: !isEditable,
+                    readOnly: true,
                   }}
                   InputLabelProps={{
                     shrink: shouldShrink("studentProfile.usn"),
