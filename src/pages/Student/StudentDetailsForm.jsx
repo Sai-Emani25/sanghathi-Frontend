@@ -467,9 +467,8 @@ StudentDetailsForm({ colorMode, menteeId, isAdminEdit }) {
                 name="studentProfile.department"
                 label="Department"
                 fullWidth
-                disabled={!isEditable}
                 InputProps={{
-                  readOnly: !isEditable,
+                  readOnly: true,
                 }}
                 InputLabelProps={{
                   shrink: shouldShrink("studentProfile.department"),
@@ -488,7 +487,7 @@ StudentDetailsForm({ colorMode, menteeId, isAdminEdit }) {
                 required={!isDataFetched}
                 disabled={!isEditable}
                 InputProps={{
-                  readOnly: !isEditable,
+                  readOnly: true,
                 }}
                 InputLabelProps={{
                   shrink: shouldShrink("studentProfile.sem"),
@@ -528,9 +527,8 @@ StudentDetailsForm({ colorMode, menteeId, isAdminEdit }) {
                   label="College Email"
                   type="email"
                   fullWidth
-                  disabled={!isEditable}
                   InputProps={{
-                    readOnly: !isEditable,
+                    readOnly: true,
                   }}
                   InputLabelProps={{
                     shrink: shouldShrink("studentProfile.email"),
@@ -542,9 +540,8 @@ StudentDetailsForm({ colorMode, menteeId, isAdminEdit }) {
                   name="studentProfile.usn"
                   label="USN"
                   fullWidth
-                  disabled={!isEditable}
                   InputProps={{
-                    readOnly: !isEditable,
+                    readOnly: true,
                   }}
                   InputLabelProps={{
                     shrink: shouldShrink("studentProfile.usn"),
