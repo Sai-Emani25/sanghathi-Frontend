@@ -65,7 +65,8 @@ const getCloudinaryPublicId = (url) => {
   }
 };
 
-export default function StudentDetailsForm({ colorMode, menteeId, isAdminEdit }) {
+export default function 
+StudentDetailsForm({ colorMode, menteeId, isAdminEdit }) {
   const { enqueueSnackbar } = useSnackbar();
   const { user } = useContext(AuthContext);
   const [isDataFetched, setIsDataFetched] = useState(false);
