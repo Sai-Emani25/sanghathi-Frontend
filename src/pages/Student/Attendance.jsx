@@ -150,7 +150,7 @@ const Attendance = () => {
         allSubjects.forEach(subject => {
             // Use subjectCode if present, else use subjectName as key
             const key = subject.subjectCode && subject.subjectCode.trim() !== ""
-                ? subject.subjectCode
+                ? `${subject.subjectCode}-${subject.subjectName}`
                 : subject.subjectName;
             if (key && !uniqueSubjects.has(key)) {
                 uniqueSubjects.set(key, {
