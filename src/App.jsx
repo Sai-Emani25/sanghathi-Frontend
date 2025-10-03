@@ -46,6 +46,7 @@ import { useLocation } from 'react-router-dom';
 import { initGA, trackPageView } from "./ga";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword   from "./pages/ResetPassword";
+import FeedbackForm from "./pages/Feedback/feedback";
 
 // TODO : Need to remove routing logic from app component
 function App() {
@@ -338,7 +339,16 @@ function App() {
                       </ProtectedRouteWrapper>
                     }
                   />
+                  <Route
+                    path="/feedback"
+                    element={
+                      <ProtectedRouteWrapper>
+                        <LazyLoadWrapper component={FeedbackForm} />
+                      </ProtectedRouteWrapper>
+                    }
+                  />
                 </Route>
+                
               </Routes>
             </main>
           </div>
