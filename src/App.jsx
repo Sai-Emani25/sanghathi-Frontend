@@ -55,7 +55,7 @@ import { initGA, trackPageView } from "./ga";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword   from "./pages/ResetPassword";
 import FeedbackForm from "./pages/Feedback/feedback";
-
+import MentorFeedbackForm from "./pages/FeedbackForm/MentorFeedback/MentorFeedback";
 import FeedbackTable from "./pages/Feedback/feedback";
 // TODO : Need to remove routing logic from app component
 function App() {
@@ -421,6 +421,14 @@ function App() {
                     element={
                       <ProtectedRouteWrapper>
                         <LazyLoadWrapper component={MentorMenteeConversation} />
+                      </ProtectedRouteWrapper>
+                    }
+                  />
+                  <Route
+                    path="/mentor-feedback"
+                    element={
+                      <ProtectedRouteWrapper>
+                        <LazyLoadWrapper component={MentorFeedbackForm} />
                       </ProtectedRouteWrapper>
                     }
                   />

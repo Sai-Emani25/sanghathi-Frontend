@@ -86,6 +86,7 @@ const studentNavConfig = [
   { text: "Mentor Details", icon: <PersonOutlinedIcon />, link: "/mentor-details" },
   { text: "Campus Buddy", icon: <HdrStrongIcon />, link: "/campus-buddy" },
   { text: "Settings", icon: <SettingsOutlinedIcon />, link: "/settings" },
+  { text: "Feedback", icon: <InfoOutlinedIcon />, link: "/mentor-feedback" }, // <-- FEEDBACK button FIXED here
 ];
 
 const getNavConfig = (role) => {
