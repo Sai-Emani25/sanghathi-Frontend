@@ -1,6 +1,7 @@
 import { defineConfig } from "vite";
 // import reactRefresh from "@vitejs/plugin-react-refresh";
 import react from "@vitejs/plugin-react";
+import { terser } from "rollup-plugin-terser";
 
 export default defineConfig(({ mode }) => {
   const BASE_URL = process.env.BASE_URL;
@@ -8,14 +9,20 @@ export default defineConfig(({ mode }) => {
   
   return {
     plugins: [
-      react()
+      react(),
+      mode === "production" && terser({
+        compress: {
+          drop_console: true,
+          drop_debugger: true
+        },
+        mangle: true,
+        format: {
+          comments: false
+        }
+      })
     ],
     build: {
-      minify: mode === "production" ? "esbuild" : false,
-      esbuild: {
-        drop: ["console", "debugger"],
-        legalComments: "none"
-      },
+      minify: mode === "production",
       sourcemap: false,
       rollupOptions: {
         output: {
@@ -33,17 +40,6 @@ export default defineConfig(({ mode }) => {
         "X-XSS-Protection": "1; mode=block",
         "Referrer-Policy": "strict-origin-when-cross-origin"
       }
-    },
-    test: {
-      environment: "jsdom",
-      setupFiles: "./src/setupTests.js",
-      passWithNoTests: true,
-      reporters: "default",
-      coverage: {
-        provider: "v8",
-        reportsDirectory: "./coverage",
-        reporter: ["text", "lcov"],
-      },
     }
   };
 });

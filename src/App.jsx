@@ -46,7 +46,8 @@ import FacultyProfile from "./pages/Faculty/FacultyProfile";
 import FacultyProfileInfo from "./pages/Faculty/FacultyProfileInfo";
 import FetchStudentProfile from "./pages/Faculty/FetchStudentProfile";
 import StudentDashboard from "./pages/Faculty/StudentDashboard";
-import Settings from "./pages/Settings/Settings";
+import StudentSettings from "./pages/Settings/StudentSettings";
+import FacultySettings from "./pages/Settings/FacultySettings";
 import TYLScorecard from "./pages/Student/TYLScorecard";
 import MentorMenteeConversation from "./pages/MentorMentee/MentorMenteeConversation";
 import MyChatBot from "./mychatbot";
@@ -380,7 +381,11 @@ function App() {
                     path="/settings"
                     element={
                       <ProtectedRouteWrapper>
-                        <LazyLoadWrapper component={Settings} />
+                        {user && user.roleName === "faculty" ? (
+                          <LazyLoadWrapper component={FacultySettings} />
+                        ) : (
+                          <LazyLoadWrapper component={StudentSettings} />
+                        )}
                       </ProtectedRouteWrapper>
                     }
                   />

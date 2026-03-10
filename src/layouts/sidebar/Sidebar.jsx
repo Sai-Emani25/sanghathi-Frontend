@@ -8,6 +8,7 @@ import logo from "../../public/logo.svg";
 import { Box, IconButton, useTheme, Typography } from "@mui/material";
 import { ChevronLeft } from "@mui/icons-material";
 import { AuthContext } from "../../context/AuthContext";
+import api from "../../utils/axios";
 
 const Sidebar = ({
   drawerWidth,
@@ -20,6 +21,7 @@ const Sidebar = ({
   const [active, setActive] = useState("dashboard");
   const theme = useTheme();
   const { user } = useContext(AuthContext);
+  const [feedbackEnabled, setFeedbackEnabled] = useState(false);
 
   const normalizeText = (text) => {
     return text.replace(/[\s_-]/g, "");
@@ -33,7 +35,28 @@ const Sidebar = ({
     }
   }, [pathname]);
 
-  const navConfig = getNavConfig(user?.roleName);
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const response = await api.get("/global-settings");
+        if (response.data.status === "success") {
+          setFeedbackEnabled(response.data.data.settings.mentorFeedbackEnabled);
+        }
+      } catch (err) {
+        console.error("Failed to fetch settings", err);
+      }
+    };
+    // Only fetch if student
+    if (user?.roleName === 'student') {
+      fetchSettings();
+    }
+  }, [user]);
+
+  let navConfig = getNavConfig(user?.roleName);
+  // For students, filter out Feedback tab if feedback is disabled
+  if (user?.roleName === 'student' && !feedbackEnabled) {
+    navConfig = navConfig.filter(item => item.text !== 'Feedback');
+  }
 
   return (
     <Box component="nav">
