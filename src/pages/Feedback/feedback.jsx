@@ -23,9 +23,16 @@ export default function FeedbackForm() {
   const targetUserId = searchParams.get("menteeId") || user?._id;
 
   const [isDataFetched, setIsDataFetched] = useState(false);
-  const { feedbackEnabled } = useContext(FeedbackEnabledContext) || { feedbackEnabled: true };
-  const [isEditable, setIsEditable] = useState(true);
-  const [existingFeedback, setExistingFeedback] = useState(null);
+  const [globalEnabled, setGlobalEnabled] = useState(true);
+
+  useEffect(() => {
+    api.get("/global-settings/")
+      .then(res => {
+        const val = res.data?.data?.settings?.mentorFeedbackEnabled;
+        setGlobalEnabled(val === true);
+      })
+      .catch(() => setGlobalEnabled(true));
+  }, []);
 
   const methods = useForm({ defaultValues: DEFAULT_VALUES });
   const {
@@ -37,7 +44,7 @@ export default function FeedbackForm() {
   // Optional: fetch existing feedback if any
   useEffect(() => {
     // If feedback is disabled, make form read-only
-    if (feedbackEnabled === false) {
+    if (globalEnabled === false) {
       setIsEditable(false);
     } else {
       setIsEditable(true);
@@ -93,7 +100,7 @@ export default function FeedbackForm() {
   };
 
   const handleReadOnlyClick = () => {
-    if (!feedbackEnabled) {
+    if (!globalEnabled) {
       enqueueSnackbar("Ask your mentor for the Feedback Form", { variant: "info" });
     }
   };
@@ -102,7 +109,7 @@ export default function FeedbackForm() {
       <Box sx={{ mb: 2, p: 2, bgcolor: "warning.light", borderRadius: 1 }}>
         <Typography>Feedback Form</Typography>
       </Box>
-      {!feedbackEnabled && (
+      {!globalEnabled && (
         <Box sx={{ mb: 2 }}>
           <button
             style={{
@@ -118,77 +125,78 @@ export default function FeedbackForm() {
             onClick={handleReadOnlyClick}
             disabled
           >
-            Feedback (Ask your mentor for the Feedback Form)
+            Feedback Disabled
           </button>
         </Box>
       )}
 
-      <FormProvider methods={methods} onSubmit={handleSubmit(onSubmit)}>
-        <Grid container spacing={2}>
-          <Grid item xs={12}>
-            <Card sx={{ p: 3 }}>
-              <Typography variant="h5" gutterBottom>Feedback</Typography>
-              <Divider sx={{ mb: 3 }} />
-
-              {!isDataFetched ? (
-                <Box sx={{ textAlign: "center", py: 3 }}>
-                  <Typography>Loading feedback...</Typography>
-                </Box>
-              ) : (
-                <Grid container spacing={3}>
-                  <Grid item xs={12} md={4}>
-                    <RHFTextField
-                      name="issues"
-                      label="Did you encounter any usability issues?"
-                      fullWidth
-                      disabled={!isEditable}
-                    />
-                  </Grid>
-                  <Grid item xs={12} md={4}>
-                    <RHFTextField
-                      name="features"
-                      label="Were there any missing features you expected?"
-                      fullWidth
-                      disabled={!isEditable}
-                    />
-                  </Grid>
-                  <Grid item xs={12} md={4}>
-                    <RHFTextField
-                      name="performance"
-                      label="Did you experience any performance issues?"
-                      fullWidth
-                      
-                      disabled={!isEditable}
-                    />
-                  </Grid>
-                  <Grid item xs={12} md={4}>
-                    <RHFTextField
-                      name="feedback"
-                      label="Additional feedback"
-                      fullWidth
-                      disabled={!isEditable}
-                    />
-                  </Grid>
-                </Grid>
-              )}
-            </Card>
-          </Grid>
-
-          {isDataFetched && (
+      {globalEnabled && (
+        <FormProvider methods={methods} onSubmit={handleSubmit(onSubmit)}>
+          <Grid container spacing={2}>
             <Grid item xs={12}>
               <Card sx={{ p: 3 }}>
-                <Stack spacing={3} alignItems="flex-end">
-                  {isEditable && (
-                    <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
-                      Save Feedback
-                    </LoadingButton>
-                  )}
-                </Stack>
+                <Typography variant="h5" gutterBottom>Feedback</Typography>
+                <Divider sx={{ mb: 3 }} />
+
+                {!isDataFetched ? (
+                  <Box sx={{ textAlign: "center", py: 3 }}>
+                    <Typography>Loading feedback...</Typography>
+                  </Box>
+                ) : (
+                  <Grid container spacing={3}>
+                    <Grid item xs={12} md={4}>
+                      <RHFTextField
+                        name="issues"
+                        label="Did you encounter any usability issues?"
+                        fullWidth
+                        disabled={!isEditable}
+                      />
+                    </Grid>
+                    <Grid item xs={12} md={4}>
+                      <RHFTextField
+                        name="features"
+                        label="Were there any missing features you expected?"
+                        fullWidth
+                        disabled={!isEditable}
+                      />
+                    </Grid>
+                    <Grid item xs={12} md={4}>
+                      <RHFTextField
+                        name="performance"
+                        label="Did you experience any performance issues?"
+                        fullWidth
+                        disabled={!isEditable}
+                      />
+                    </Grid>
+                    <Grid item xs={12} md={4}>
+                      <RHFTextField
+                        name="feedback"
+                        label="Additional feedback"
+                        fullWidth
+                        disabled={!isEditable}
+                      />
+                    </Grid>
+                  </Grid>
+                )}
               </Card>
             </Grid>
-          )}
-        </Grid>
-      </FormProvider>
+
+            {isDataFetched && (
+              <Grid item xs={12}>
+                <Card sx={{ p: 3 }}>
+                  <Stack spacing={3} alignItems="flex-end">
+                    {isEditable && (
+                      <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
+                        Save Feedback
+                      </LoadingButton>
+                    )}
+                  </Stack>
+                </Card>
+              </Grid>
+            )}
+          </Grid>
+        </FormProvider>
+      )}
     </div>
   );
 }

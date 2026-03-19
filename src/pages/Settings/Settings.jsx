@@ -173,22 +173,16 @@ export default function Settings() {
         </form>
       </Card>
 
-      {/* Complains Button and Feedback Toggle */}
+      {/* Complains Button only, Feedback Toggle removed */}
       <Box sx={{ mt: 4, maxWidth: 600, mx: "auto", textAlign: "center" }}>
-        <Stack direction="row" spacing={2} justifyContent="center" alignItems="center">
-          <Button
-            variant="outlined"
-            color="secondary"
-            size="large"
-            onClick={handleComplainsClick}
-          >
-            Complains
-          </Button>
-          <FormControlLabel
-            control={<Switch checked={feedbackEnabled} onChange={e => setFeedbackEnabled(e.target.checked)} color="primary" />}
-            label={feedbackEnabled ? "Feedback Enabled" : "Feedback Disabled"}
-          />
-        </Stack>
+        <Button
+          variant="outlined"
+          color="secondary"
+          size="large"
+          onClick={handleComplainsClick}
+        >
+          Complains
+        </Button>
       </Box>
       </Box>
     </FeedbackEnabledContext.Provider>

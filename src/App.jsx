@@ -58,6 +58,8 @@ import ResetPassword   from "./pages/ResetPassword";
 import FeedbackForm from "./pages/Feedback/feedback";
 import MentorFeedbackForm from "./pages/FeedbackForm/MentorFeedback/MentorFeedback";
 import FeedbackTable from "./pages/Feedback/feedback";
+import MentorFeedbackDashboard from "./pages/Admin/MentorFeedbackDashboard";
+import MentorFeedbackDetail from "./pages/Admin/MentorFeedbackDetail";
 // TODO : Need to remove routing logic from app component
 function App() {
   // Track page views on route change using Google Analytics GA4
@@ -80,6 +82,9 @@ function App() {
           <div className="app">
             <main className="content">
               <Routes>
+                <Route path="/forgot-password" element={<ForgotPassword />} />
+                <Route path="/resetPassword/:token" element={<ResetPassword />} />
+                <Route path="/forgotPassword" element={<Navigate to="/forgot-password" />} />
                 <Route
                   path="/login"
                   element={user ? <Navigate replace to="/" /> : <Login />}
@@ -222,14 +227,22 @@ function App() {
                       </ProtectedRouteWrapper>
                     }
                   />
-                  {/* <Route
+                  <Route
+                    path="/admin/mentor-feedback-dashboard"
+                    element={
+                      <ProtectedRouteWrapper allowedRoles={["admin"]}>
+                        <LazyLoadWrapper component={MentorFeedbackDashboard} />
+                      </ProtectedRouteWrapper>
+                    }
+                  />
+                  <Route
                     path="/chat"
                     element={
                       <ProtectedRouteWrapper>
                         <LazyLoadWrapper component={Chat} />
                       </ProtectedRouteWrapper>
                     }
-                  /> */}
+                  /> 
                   <Route
                     path="/meetings"
                     element={
@@ -434,6 +447,22 @@ function App() {
                     element={
                       <ProtectedRouteWrapper>
                         <LazyLoadWrapper component={MentorFeedbackForm} />
+                      </ProtectedRouteWrapper>
+                    }
+                  />
+                  <Route
+                    path="/mentor-feedback-detail/:mentorId/:menteeId"
+                    element={
+                      <ProtectedRouteWrapper>
+                        <LazyLoadWrapper component={MentorFeedbackDetail} />
+                      </ProtectedRouteWrapper>
+                    }
+                  />
+                  <Route
+                    path="/admin/mentor-feedback/:id"
+                    element={
+                      <ProtectedRouteWrapper allowedRoles={["admin"]}>
+                        <LazyLoadWrapper component={MentorFeedbackDetail} />
                       </ProtectedRouteWrapper>
                     }
                   />
