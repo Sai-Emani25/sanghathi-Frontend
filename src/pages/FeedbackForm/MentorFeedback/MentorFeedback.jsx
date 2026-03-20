@@ -14,8 +14,8 @@ import {
   RadioGroup,
   FormControlLabel,
   Radio,
+  Chip,
 } from "@mui/material";
-import { useNavigate } from "react-router-dom";
 
 const QUESTIONS_STEP1 = [
   "Whether your mentor is accessible and available?",
@@ -47,7 +47,7 @@ const FEEDBACK_OPTIONS = [
 export default function MentorFeedbackForm() {
   const { enqueueSnackbar } = useSnackbar();
   const { user } = useContext(AuthContext);
-  const navigate = useNavigate();
+  const [studentProfile, setStudentProfile] = React.useState(null);
 
   const {
     control,
@@ -57,8 +57,6 @@ export default function MentorFeedbackForm() {
     reset,
   } = useForm({
     defaultValues: {
-      semester: user?.semester ? user.semester.toString() : "",
-      usn: user?.usn || "",
       mentorFeedbackStep1: Array(QUESTIONS_STEP1.length).fill(""),
       mentorFeedbackStep2: Array(QUESTIONS_STEP2.length).fill(""),
       pstMembersAware: "",
@@ -76,8 +74,6 @@ export default function MentorFeedbackForm() {
   React.useEffect(() => {
     if (user) {
       reset({
-        semester: user.semester?.toString() || "",
-        usn: user.usn || "",
         mentorFeedbackStep1: Array(QUESTIONS_STEP1.length).fill(""),
         mentorFeedbackStep2: Array(QUESTIONS_STEP2.length).fill(""),
         pstMembersAware: "",
@@ -88,6 +84,22 @@ export default function MentorFeedbackForm() {
       });
     }
   }, [user, reset]);
+
+  React.useEffect(() => {
+    const fetchStudentProfile = async () => {
+      if (!user?._id) return;
+      try {
+        const response = await api.get(`/student-profiles/${user._id}`);
+        setStudentProfile(response.data);
+      } catch (error) {
+        enqueueSnackbar("Unable to load student profile details", {
+          variant: "error",
+        });
+      }
+    };
+
+    fetchStudentProfile();
+  }, [enqueueSnackbar, user?._id]);
 
   const mentorFeedbackStep1 = watch("mentorFeedbackStep1") || [];
   const mentorFeedbackStep2 = watch("mentorFeedbackStep2") || [];
@@ -135,24 +147,24 @@ export default function MentorFeedbackForm() {
         : 0;
 
     try {
+      if (!studentProfile?.usn || !studentProfile?.sem) {
+        enqueueSnackbar("Student profile is incomplete. Please update USN and semester in your profile.", {
+          variant: "error",
+        });
+        return;
+      }
+
       const res = await api.post("/mentor-feedback", {
         ...data,
         mentorFeedback: scores,
         userId: user?._id,
         averageScore: avgScore,
-        semester: Number(data.semester),
         rateMentor: Number(data.rateMentor),
       });
-
-      const feedbackId = res.data?.id || res.data?._id;
 
       enqueueSnackbar("Feedback submitted successfully!", {
         variant: "success",
       });
-
-      if (feedbackId) {
-        navigate(`/mentor-feedback-summary/${feedbackId}`);
-      }
 
       setLocked(true);
       setStep(1);
@@ -200,48 +212,30 @@ export default function MentorFeedbackForm() {
           <form onSubmit={handleSubmit(onSubmit)}>
             <Card sx={{ p: 3, bgcolor: "#222A35", color: "#fff" }}>
               <Grid container spacing={2}>
-                {/* USN */}
-                <Grid item xs={12} sm={4}>
-                  <Typography gutterBottom>USN</Typography>
-                  <Controller
-                    name="usn"
-                    control={control}
-                    render={({ field }) => (
-                      <TextField
-                        {...field}
-                        fullWidth
-                        variant="outlined"
-                        sx={{
-                          bgcolor: "#222A35",
-                          color: "#fff",
-                          borderColor: "#444B58",
-                          input: { color: "#fff" },
-                        }}
-                      />
-                    )}
-                  />
-                </Grid>
-
-                {/* Semester (editable) */}
-                <Grid item xs={12} sm={4}>
-                  <Typography gutterBottom>Semester</Typography>
-                  <Controller
-                    name="semester"
-                    control={control}
-                    render={({ field }) => (
-                      <TextField
-                        {...field}
-                        fullWidth
-                        variant="outlined"
-                        sx={{
-                          bgcolor: "#222A35",
-                          color: "#fff",
-                          borderColor: "#444B58",
-                          input: { color: "#fff" },
-                        }}
-                      />
-                    )}
-                  />
+                <Grid item xs={12}>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      gap: 1,
+                      flexWrap: "wrap",
+                      alignItems: "center",
+                      mb: 1,
+                    }}
+                  >
+                    <Typography variant="body2" color="#fff">
+                      Student details are fetched from your profile:
+                    </Typography>
+                    <Chip
+                      label={`USN: ${studentProfile?.usn || "Not available"}`}
+                      variant="outlined"
+                      sx={{ color: "#fff", borderColor: "#4CAF50" }}
+                    />
+                    <Chip
+                      label={`Semester: ${studentProfile?.sem || "Not available"}`}
+                      variant="outlined"
+                      sx={{ color: "#fff", borderColor: "#4CAF50" }}
+                    />
+                  </Box>
                 </Grid>
 
                 {/* STEP 1 QUESTIONS */}
@@ -550,8 +544,6 @@ export default function MentorFeedbackForm() {
                 setLocked(false);
                 setStep(1);
                 reset({
-                  semester: user?.semester?.toString() || "",
-                  usn: user?.usn || "",
                   mentorFeedbackStep1: Array(QUESTIONS_STEP1.length).fill(""),
                   mentorFeedbackStep2: Array(QUESTIONS_STEP2.length).fill(""),
                   pstMembersAware: "",
