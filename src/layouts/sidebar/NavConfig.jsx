@@ -10,24 +10,6 @@ import PeopleOutlinedIcon from "@mui/icons-material/PeopleOutlined";
 import PersonAddOutlinedIcon from "@mui/icons-material/PersonAddOutlined";
 import SummarizeOutlinedIcon from '@mui/icons-material/SummarizeOutlined';
 import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
-import DashboardOutlinedIcon from '@mui/icons-material/DashboardOutlined';
-import { useEffect, useState } from "react";
-import api from "../../utils/axios";
-
-
-// Hook for feedback enabled state
-export function useFeedbackEnabledGlobal() {
-  const [feedbackEnabledGlobal, setFeedbackEnabledGlobal] = useState(true);
-  useEffect(() => {
-    api.get("/global-settings/")
-      .then(res => {
-        const val = res.data?.data?.settings?.mentorFeedbackEnabled;
-        setFeedbackEnabledGlobal(val === true);
-      })
-      .catch(() => { setFeedbackEnabledGlobal(true); });
-  }, []);
-  return feedbackEnabledGlobal;
-}
 
 const HodNavConfig = [
   {
@@ -94,9 +76,7 @@ const directorNavConfig = [
 ];
 
 
-// Student sidebar config as a function to use hook
-export function getStudentNavConfig() {
-  const feedbackEnabledGlobal = useFeedbackEnabledGlobal();
+const getStudentNavConfig = (feedbackEnabledGlobal) => {
   return [
     { text: "Home", icon: <HomeOutlinedIcon />, link: "/" },
     { text: "Threads", icon: <QuestionAnswerOutlinedIcon />, link: "/threads" },
@@ -108,10 +88,9 @@ export function getStudentNavConfig() {
       { text: "Feedback", icon: <InfoOutlinedIcon />, link: "/mentor-feedback" }
     ] : [])
   ];
-}
+};
 
-// Updated getNavConfig to use hook for student
-export const getNavConfig = (role) => {
+export const getNavConfig = (role, feedbackEnabledGlobal = true) => {
   switch (role) {
     case "admin":
       return adminNavConfig;
@@ -122,7 +101,7 @@ export const getNavConfig = (role) => {
     case "director":
       return directorNavConfig;
     case "student":
-      return getStudentNavConfig();
+      return getStudentNavConfig(feedbackEnabledGlobal);
     default:
       return [];
   }

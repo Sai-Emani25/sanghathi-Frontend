@@ -46,8 +46,7 @@ import FacultyProfile from "./pages/Faculty/FacultyProfile";
 import FacultyProfileInfo from "./pages/Faculty/FacultyProfileInfo";
 import FetchStudentProfile from "./pages/Faculty/FetchStudentProfile";
 import StudentDashboard from "./pages/Faculty/StudentDashboard";
-import StudentSettings from "./pages/Settings/StudentSettings";
-import FacultySettings from "./pages/Settings/FacultySettings";
+import Settings from "./pages/Settings/Settings";
 import TYLScorecard from "./pages/Student/TYLScorecard";
 import MentorMenteeConversation from "./pages/MentorMentee/MentorMenteeConversation";
 import MyChatBot from "./mychatbot";
@@ -55,9 +54,7 @@ import { useLocation } from 'react-router-dom';
 import { initGA, trackPageView } from "./ga";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword   from "./pages/ResetPassword";
-import FeedbackForm from "./pages/Feedback/feedback";
 import MentorFeedbackForm from "./pages/FeedbackForm/MentorFeedback/MentorFeedback";
-import FeedbackTable from "./pages/Feedback/feedback";
 import MentorFeedbackDashboard from "./pages/Admin/MentorFeedbackDashboard";
 import MentorFeedbackDetail from "./pages/Admin/MentorFeedbackDetail";
 // TODO : Need to remove routing logic from app component
@@ -394,11 +391,7 @@ function App() {
                     path="/settings"
                     element={
                       <ProtectedRouteWrapper>
-                        {user && user.roleName === "faculty" ? (
-                          <LazyLoadWrapper component={FacultySettings} />
-                        ) : (
-                          <LazyLoadWrapper component={StudentSettings} />
-                        )}
+                        <LazyLoadWrapper component={Settings} />
                       </ProtectedRouteWrapper>
                     }
                   />
@@ -447,14 +440,6 @@ function App() {
                     element={
                       <ProtectedRouteWrapper>
                         <LazyLoadWrapper component={MentorFeedbackForm} />
-                      </ProtectedRouteWrapper>
-                    }
-                  />
-                  <Route
-                    path="/mentor-feedback-detail/:mentorId/:menteeId"
-                    element={
-                      <ProtectedRouteWrapper>
-                        <LazyLoadWrapper component={MentorFeedbackDetail} />
                       </ProtectedRouteWrapper>
                     }
                   />

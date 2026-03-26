@@ -5,9 +5,10 @@ import SidebarDrawer from "./SidebarDrawer";
 import NavItemsList from "./NavItemsList";
 import FlexBetween from "../../components/FlexBetween";
 import logo from "../../public/logo.svg";
-import { Box, IconButton, useTheme, Typography } from "@mui/material";
+import { Box, IconButton, useTheme } from "@mui/material";
 import { ChevronLeft } from "@mui/icons-material";
 import { AuthContext } from "../../context/AuthContext";
+import api from "../../utils/axios";
 
 const Sidebar = ({
   drawerWidth,
@@ -18,6 +19,7 @@ const Sidebar = ({
 }) => {
   const { pathname } = useLocation();
   const [active, setActive] = useState("dashboard");
+  const [feedbackEnabled, setFeedbackEnabled] = useState(true);
   const theme = useTheme();
   const { user } = useContext(AuthContext);
 
@@ -33,7 +35,23 @@ const Sidebar = ({
     }
   }, [pathname]);
 
-  const navConfig = getNavConfig(user?.roleName);
+  useEffect(() => {
+    if (user?.roleName !== "student") {
+      return;
+    }
+
+    api
+      .get("/global-settings/")
+      .then((res) => {
+        const enabled = res.data?.data?.settings?.mentorFeedbackEnabled;
+        setFeedbackEnabled(enabled === true);
+      })
+      .catch(() => {
+        setFeedbackEnabled(true);
+      });
+  }, [user?.roleName]);
+
+  const navConfig = getNavConfig(user?.roleName, feedbackEnabled);
 
   return (
     <Box component="nav">
