@@ -46,7 +46,8 @@ import FacultyProfile from "./pages/Faculty/FacultyProfile";
 import FacultyProfileInfo from "./pages/Faculty/FacultyProfileInfo";
 import FetchStudentProfile from "./pages/Faculty/FetchStudentProfile";
 import StudentDashboard from "./pages/Faculty/StudentDashboard";
-import Settings from "./pages/Settings/Settings";
+import StudentSettings from "./pages/Settings/StudentSettings";
+import FacultySettings from "./pages/Settings/FacultySettings";
 import TYLScorecard from "./pages/Student/TYLScorecard";
 import MentorMenteeConversation from "./pages/MentorMentee/MentorMenteeConversation";
 import MyChatBot from "./mychatbot";
@@ -55,8 +56,10 @@ import { initGA, trackPageView } from "./ga";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword   from "./pages/ResetPassword";
 import FeedbackForm from "./pages/Feedback/feedback";
-
+import MentorFeedbackForm from "./pages/FeedbackForm/MentorFeedback/MentorFeedback";
 import FeedbackTable from "./pages/Feedback/feedback";
+import MentorFeedbackDashboard from "./pages/Admin/MentorFeedbackDashboard";
+import MentorFeedbackDetail from "./pages/Admin/MentorFeedbackDetail";
 // TODO : Need to remove routing logic from app component
 function App() {
   // Track page views on route change using Google Analytics GA4
@@ -79,6 +82,9 @@ function App() {
           <div className="app">
             <main className="content">
               <Routes>
+                <Route path="/forgot-password" element={<ForgotPassword />} />
+                <Route path="/resetPassword/:token" element={<ResetPassword />} />
+                <Route path="/forgotPassword" element={<Navigate to="/forgot-password" />} />
                 <Route
                   path="/login"
                   element={user ? <Navigate replace to="/" /> : <Login />}
@@ -221,14 +227,22 @@ function App() {
                       </ProtectedRouteWrapper>
                     }
                   />
-                  {/* <Route
+                  <Route
+                    path="/admin/mentor-feedback-dashboard"
+                    element={
+                      <ProtectedRouteWrapper allowedRoles={["admin"]}>
+                        <LazyLoadWrapper component={MentorFeedbackDashboard} />
+                      </ProtectedRouteWrapper>
+                    }
+                  />
+                  <Route
                     path="/chat"
                     element={
                       <ProtectedRouteWrapper>
                         <LazyLoadWrapper component={Chat} />
                       </ProtectedRouteWrapper>
                     }
-                  /> */}
+                  /> 
                   <Route
                     path="/meetings"
                     element={
@@ -380,7 +394,11 @@ function App() {
                     path="/settings"
                     element={
                       <ProtectedRouteWrapper>
-                        <LazyLoadWrapper component={Settings} />
+                        {user && user.roleName === "faculty" ? (
+                          <LazyLoadWrapper component={FacultySettings} />
+                        ) : (
+                          <LazyLoadWrapper component={StudentSettings} />
+                        )}
                       </ProtectedRouteWrapper>
                     }
                   />
@@ -421,6 +439,30 @@ function App() {
                     element={
                       <ProtectedRouteWrapper>
                         <LazyLoadWrapper component={MentorMenteeConversation} />
+                      </ProtectedRouteWrapper>
+                    }
+                  />
+                  <Route
+                    path="/mentor-feedback"
+                    element={
+                      <ProtectedRouteWrapper>
+                        <LazyLoadWrapper component={MentorFeedbackForm} />
+                      </ProtectedRouteWrapper>
+                    }
+                  />
+                  <Route
+                    path="/mentor-feedback-detail/:mentorId/:menteeId"
+                    element={
+                      <ProtectedRouteWrapper>
+                        <LazyLoadWrapper component={MentorFeedbackDetail} />
+                      </ProtectedRouteWrapper>
+                    }
+                  />
+                  <Route
+                    path="/admin/mentor-feedback/:id"
+                    element={
+                      <ProtectedRouteWrapper allowedRoles={["admin"]}>
+                        <LazyLoadWrapper component={MentorFeedbackDetail} />
                       </ProtectedRouteWrapper>
                     }
                   />

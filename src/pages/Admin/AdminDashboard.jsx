@@ -246,6 +246,14 @@ const AdminDashboard = () => {
               link="/faculty/FacultyProfile"
             />
           </Grid>
+          {/* Mentor Feedback Dashboard Button */}
+          <Grid item xs={12} sm={6} md={isLight ? 6 : 6} lg={isLight ? 4 : 4}>
+            <AdminTile
+              title="Mentor Feedback"
+              icon={<AssignmentIcon />}
+              link="/admin/mentor-feedback-dashboard"
+            />
+          </Grid>
           
           <Grid item xs={12} sm={6} md={isLight ? 6 : 6} lg={isLight ? 4 : 4}>
             <AdminTile

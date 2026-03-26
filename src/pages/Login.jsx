@@ -226,7 +226,7 @@ const Login = () => {
 
                 <Box sx={{ textAlign: "center", mt: 2 }}>
                   <Link 
-                    href="/forgotPassword" 
+                    href="/forgot-password" 
                     underline="hover"
                     sx={{ 
                       color: isLight ? theme.palette.primary.main : theme.palette.info.main,

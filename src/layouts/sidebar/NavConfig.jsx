@@ -11,10 +11,24 @@ import PersonAddOutlinedIcon from "@mui/icons-material/PersonAddOutlined";
 import SummarizeOutlinedIcon from '@mui/icons-material/SummarizeOutlined';
 import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
 import DashboardOutlinedIcon from '@mui/icons-material/DashboardOutlined';
+import { useEffect, useState } from "react";
+import api from "../../utils/axios";
 
-// Campus buddy icon needs special treatment as it represents a feature
-// NavItemButton already handles the correct color for all icons based on theme mode
-// This setup keeps the config simpler
+
+// Hook for feedback enabled state
+export function useFeedbackEnabledGlobal() {
+  const [feedbackEnabledGlobal, setFeedbackEnabledGlobal] = useState(true);
+  useEffect(() => {
+    api.get("/global-settings/")
+      .then(res => {
+        const val = res.data?.data?.settings?.mentorFeedbackEnabled;
+        setFeedbackEnabledGlobal(val === true);
+      })
+      .catch(() => { setFeedbackEnabledGlobal(true); });
+  }, []);
+  return feedbackEnabledGlobal;
+}
+
 const HodNavConfig = [
   {
     text: "Home",
@@ -79,17 +93,25 @@ const directorNavConfig = [
   { text: "Settings", icon: <SettingsOutlinedIcon />, link: "/settings" },
 ];
 
-const studentNavConfig = [
-  { text: "Home", icon: <HomeOutlinedIcon />, link: "/" },
-  { text: "Threads", icon: <QuestionAnswerOutlinedIcon />, link: "/threads" },
-  // { text: "Meetings", icon: <EventOutlinedIcon />, link: "/meetings" },
-  { text: "Mentor Details", icon: <PersonOutlinedIcon />, link: "/mentor-details" },
-  { text: "Campus Buddy", icon: <HdrStrongIcon />, link: "/campus-buddy" },
-  { text: "Settings", icon: <SettingsOutlinedIcon />, link: "/settings" },
-];
 
-const getNavConfig = (role) => {
-  console.log("ROLE", role);
+// Student sidebar config as a function to use hook
+export function getStudentNavConfig() {
+  const feedbackEnabledGlobal = useFeedbackEnabledGlobal();
+  return [
+    { text: "Home", icon: <HomeOutlinedIcon />, link: "/" },
+    { text: "Threads", icon: <QuestionAnswerOutlinedIcon />, link: "/threads" },
+    // { text: "Meetings", icon: <EventOutlinedIcon />, link: "/meetings" },
+    { text: "Mentor Details", icon: <PersonOutlinedIcon />, link: "/mentor-details" },
+    { text: "Campus Buddy", icon: <HdrStrongIcon />, link: "/campus-buddy" },
+    { text: "Settings", icon: <SettingsOutlinedIcon />, link: "/settings" },
+    ...(feedbackEnabledGlobal ? [
+      { text: "Feedback", icon: <InfoOutlinedIcon />, link: "/mentor-feedback" }
+    ] : [])
+  ];
+}
+
+// Updated getNavConfig to use hook for student
+export const getNavConfig = (role) => {
   switch (role) {
     case "admin":
       return adminNavConfig;
@@ -100,7 +122,7 @@ const getNavConfig = (role) => {
     case "director":
       return directorNavConfig;
     case "student":
-      return studentNavConfig;
+      return getStudentNavConfig();
     default:
       return [];
   }
