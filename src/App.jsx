@@ -80,6 +80,9 @@ function App() {
           <div className="app">
             <main className="content">
               <Routes>
+                <Route path="/forgotPassword" element={<ForgotPassword />} />
+                <Route path="/forgot-password" element={<Navigate replace to="/forgotPassword" />} />
+                <Route path="/resetPassword/:token" element={<ResetPassword />} />
                 <Route
                   path="/login"
                   element={user ? <Navigate replace to="/" /> : <Login />}
