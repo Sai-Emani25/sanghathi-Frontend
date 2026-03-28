@@ -14,9 +14,7 @@ const ForgotPassword = () => {
     setLoading(true);
 
     try {
-    await axios.post(`${import.meta.env.VITE_API_URL}/users/forgotPassword`, {
-      email: email.trim().toLowerCase(),
-    });
+    await axios.post(`${import.meta.env.VITE_API_URL}/users/forgotPassword`, { email });
       enqueueSnackbar("Password reset link sent to your email!", { variant: "success" });
     } catch (err) {
       enqueueSnackbar(err.response?.data?.message || "Something went wrong", { variant: "error" });

@@ -28,7 +28,10 @@ api.interceptors.response.use(
       headers: error.response?.headers,
     });
 
-    return Promise.reject(error);
+    const message =
+      error.response?.data?.message || "An error occurred. Please try again.";
+
+    return Promise.reject(new Error(message));
   }
 );
 

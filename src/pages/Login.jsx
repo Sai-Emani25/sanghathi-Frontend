@@ -2,22 +2,24 @@ import logo from "../public/cmrit_logo.png";
 import sidelogo from "../../public/logo.svg";
 import {
   Box,
+  Card,
   Typography,
   Container,
   TextField,
+  FormControlLabel,
+  Radio,
   Button,
   CircularProgress,
   Grid,
   Stack,
   Link,
+  Avatar,
   useTheme,
-  IconButton,
-  InputAdornment,
 } from "@mui/material";
 import { useContext, useRef, useState } from "react";
-import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { loginCall } from "../apiCalls";
 import { AuthContext } from "../context/AuthContext";
+import Image from "mui-image";
 import Page from "../components/Page";
 import { useSnackbar } from "notistack";
 import { useNavigate } from "react-router-dom";
@@ -32,7 +34,43 @@ const Login = () => {
   const { isFetching, dispatch } = useContext(AuthContext);
   const theme = useTheme();
   const isLight = theme.palette.mode === 'light';
-  const [showPassword, setShowPassword] = useState(false);
+
+  const [isAdminDemoChecked, setIsAdminDemoChecked] = useState(false);
+  const [isFacultyDemoChecked, setIsFacultyDemoChecked] = useState(false);
+  const [isStudentDemoChecked, setIsStudentDemoChecked] = useState(false);
+
+  const handleAdminDemoChange = (event) => {
+    setIsAdminDemoChecked(event.target.checked);
+    if (event.target.checked) {
+      setIsStudentDemoChecked(false);
+      setIsFacultyDemoChecked(false);
+    } else {
+      email.current.value = "";
+      password.current.value = "";
+    }
+  };
+
+  const handleFacultyDemoChange = (event) => {
+    setIsFacultyDemoChecked(event.target.checked);
+    if (event.target.checked) {
+      setIsStudentDemoChecked(false);
+      setIsAdminDemoChecked(false);
+    } else {
+      email.current.value = "";
+      password.current.value = "";
+    }
+  };
+
+  const handleStudentDemoChange = (event) => {
+    setIsStudentDemoChecked(event.target.checked);
+    if (event.target.checked) {
+      setIsFacultyDemoChecked(false);
+      setIsAdminDemoChecked(false);
+    } else {
+      email.current.value = "";
+      password.current.value = "";
+    }
+  };
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -133,31 +171,44 @@ const Login = () => {
                   <TextField
                     label="Password"
                     variant="outlined"
-                    type={showPassword ? "text" : "password"}
+                    type="password"
                     fullWidth
                     inputRef={password}
                     autoComplete="current-password"
-                    InputProps={{
-                      endAdornment: (
-                        <InputAdornment position="end">
-                          <IconButton
-                            aria-label={showPassword ? "Hide password" : "Show password"}
-                            onClick={() => setShowPassword((prev) => !prev)}
-                            edge="end"
-                            sx={{
-                              backgroundColor: "transparent",
-                              color: "action.active",
-                              "&:hover": {
-                                backgroundColor: "transparent",
-                              },
-                            }}
-                          >
-                            {showPassword ? <VisibilityOff /> : <Visibility />}
-                          </IconButton>
-                        </InputAdornment>
-                      ),
-                    }}
                   />
+
+                  {/* <Stack direction="row" justifyContent="space-between">
+                    <FormControlLabel
+                      control={
+                        <Radio
+                          checked={isAdminDemoChecked}
+                          onChange={handleAdminDemoChange}
+                          name="adminDemo"
+                        />
+                      }
+                      label="Admin"
+                    />
+                    <FormControlLabel
+                      control={
+                        <Radio
+                          checked={isFacultyDemoChecked}
+                          onChange={handleFacultyDemoChange}
+                          name="faculty"
+                        />
+                      }
+                      label="Faculty"
+                    />
+                    <FormControlLabel
+                      control={
+                        <Radio
+                          checked={isStudentDemoChecked}
+                          onChange={handleStudentDemoChange}
+                          name="studentDemo"
+                        />
+                      }
+                      label="Student"
+                    />
+                  </Stack> */}
 
                   <Button
                     type="submit"
@@ -175,7 +226,7 @@ const Login = () => {
 
                 <Box sx={{ textAlign: "center", mt: 2 }}>
                   <Link 
-                    href="/forgot-password" 
+                    href="/forgotPassword" 
                     underline="hover"
                     sx={{ 
                       color: isLight ? theme.palette.primary.main : theme.palette.info.main,
