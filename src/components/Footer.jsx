@@ -25,7 +25,7 @@ const contactLinks = [
   { label: "About Developers", to: "/about-developers" },
 ];
 
-const SUPPORT_EMAIL = "kethan.ise24@cmrit.ac.in";
+const SUPPORT_EMAIL = "emithru@gmail.com";
 
 const roleLinks = {
   student: [
@@ -193,7 +193,7 @@ const Footer = () => {
             © {currentYear} Sanghathi. All rights reserved.
           </Typography>
           <Typography variant="caption" color="text.secondary">
-            Sangathi version 2.0
+            Sanghathi
           </Typography>
         </Stack>
       </Container>

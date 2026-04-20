@@ -54,11 +54,10 @@ const ReleaseAnnouncementDialog = ({ open, onDismiss, onCheckUpdates }) => {
               color={theme.palette.mode === "light" ? "primary" : "info"}
             />
             <Typography id="sangathi-release-dialog-title" variant="h5" sx={{ fontWeight: 800 }}>
-              Sangathi 2.0 is live
+              What&apos;s New
             </Typography>
             <Typography variant="body2" color="text.secondary" sx={{ maxWidth: 320 }}>
-              New dashboard polish, stronger mentoring workflows, better mobile UX,
-              and smoother admin data operations are now available.
+              Check out the latest updates and features in the What&apos;s New section.
             </Typography>
           </Stack>
 
