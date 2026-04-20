@@ -206,6 +206,14 @@ const FacultyDashboard = () => {
               />
             </Grid>
 
+            <Grid item xs={12} sm={6} md={isLight ? 6 : 6} lg={isLight ? 4 : 4}>
+              <StudentTile
+                title="Reports"
+                icon={<SummarizeOutlinedIcon />}
+                link="/report"
+              />
+            </Grid>
+
             
             {/* <Grid item xs={12} sm={6} md={isLight ? 6 : 6} lg={isLight ? 4 : 4}>
               <StudentTile

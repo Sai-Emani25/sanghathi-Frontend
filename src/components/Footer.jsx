@@ -17,6 +17,7 @@ const logo = "/apple-touch-icon.png";
 
 const commonLinks = [
   { label: "Campus Buddy", to: "/campus-buddy" },
+  { label: "VTU Study Material", href: "https://vtustudymaterial.com" },
   { label: "Threads", to: "/threads" },
   { label: "Settings", to: "/settings" },
 ];
