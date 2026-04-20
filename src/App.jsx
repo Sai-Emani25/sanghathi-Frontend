@@ -226,6 +226,14 @@ function App() {
                     }
                   />
                   <Route
+                    path="/hod/users"
+                    element={
+                      <ProtectedRouteWrapper allowedRoles={["hod"]}>
+                        <LazyLoadWrapper component={ViewUsers} />
+                      </ProtectedRouteWrapper>
+                    }
+                  />
+                  <Route
                     path="/admin/add-user"
                     element={
                       <ProtectedRouteWrapper>
