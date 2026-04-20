@@ -17,6 +17,13 @@ const DashboardLayout = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(isNonMobile);
   const [isReleaseDialogOpen, setIsReleaseDialogOpen] = useState(false);
 
+  const getNumericWidth = (widthObj) => {
+    if (!widthObj) return 0;
+    if (typeof widthObj === 'number') return widthObj;
+    if (typeof widthObj === 'object') return widthObj.sm || widthObj.md || 250;
+    return 0;
+  };
+
   useEffect(() => {
     setIsSidebarOpen(isNonMobile);
   }, [isNonMobile]);
@@ -51,7 +58,8 @@ const DashboardLayout = () => {
     navigate("/updates");
   };
 
-  const sidebarWidth = isNonMobile && isSidebarOpen ? 250 : 0;
+  const numericDrawerWidth = getNumericWidth({ xs: "84vw", sm: 250 });
+  const sidebarWidth = isNonMobile && isSidebarOpen ? numericDrawerWidth : 0;
 
   return (
     <Box
@@ -73,11 +81,12 @@ const DashboardLayout = () => {
         sx={{
           flexGrow: 1,
           minWidth: 0,
+          width: `calc(100% - ${sidebarWidth}px)`,
           display: "flex",
           flexDirection: "column",
           minHeight: "100vh",
           ml: `${sidebarWidth}px`,
-          transition: theme => theme.transitions.create("margin-left", { duration: theme.transitions.duration.standard }),
+          transition: theme => theme.transitions.create(["margin-left", "width"], { duration: theme.transitions.duration.standard }),
         }}
       >
         <DashboardHeader
