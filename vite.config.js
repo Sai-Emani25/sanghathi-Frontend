@@ -4,7 +4,7 @@ import react from "@vitejs/plugin-react";
 
 export default defineConfig(({ mode }) => {
   const BASE_URL = process.env.BASE_URL;
-  const PORT = parseInt(process.env.PORT) || 3000;
+  const PORT = parseInt(process.env.PORT) || 5173;
   
   return {
     plugins: [
