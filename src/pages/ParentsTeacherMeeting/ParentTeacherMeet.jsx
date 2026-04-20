@@ -60,8 +60,8 @@ export default function ParentTeacherMeet() {
 
   const onSubmit = useCallback(async (formData) => {
     try {
-      await api.post("/api/abc", formData);
-      enqueueSnackbar("Student profile created successfully!", {
+      await api.post("/students/ptm", formData);
+      enqueueSnackbar("PTM record saved successfully!", {
         variant: "success",
       });
       reset();
