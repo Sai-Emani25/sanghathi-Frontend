@@ -32,7 +32,8 @@ import {
   Group as GroupIcon,
   Dashboard as DashboardIcon,
   LiveHelp as LiveHelpIcon,
-  Info as InfoOutlinedIcon
+  Info as InfoOutlinedIcon,
+  Today as TodayIcon
 } from "@mui/icons-material";
 import { blueGrey } from "@mui/material/colors";
 
@@ -194,6 +195,22 @@ const FacultyDashboard = () => {
                 title="Mentor-Mentee Conversation"
                 icon={<AssignmentIcon />}
                 link="/mentor-mentee-conversation"
+              />
+            </Grid>
+
+            <Grid item xs={12} sm={6} md={isLight ? 6 : 6} lg={isLight ? 4 : 4}>
+              <StudentTile
+                title="Mentee Attendance"
+                icon={<TodayIcon />}
+                link="/faculty/mentee-attendance"
+              />
+            </Grid>
+
+            <Grid item xs={12} sm={6} md={isLight ? 6 : 6} lg={isLight ? 4 : 4}>
+              <StudentTile
+                title="Reports"
+                icon={<SummarizeOutlinedIcon />}
+                link="/report"
               />
             </Grid>
 
