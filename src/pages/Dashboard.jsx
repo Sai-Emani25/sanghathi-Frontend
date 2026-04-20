@@ -247,6 +247,10 @@ const Dashboard = () => {
   const { user } = useContext(AuthContext);
   const [bugReportDialogOpen, setBugReportDialogOpen] = useState(false);
   const [attendanceData, setAttendanceData] = useState(null);
+
+  if (!user) {
+    return null;
+  }
   
   const handleBugReportDialogOpen = () => {
     setBugReportDialogOpen(true);
