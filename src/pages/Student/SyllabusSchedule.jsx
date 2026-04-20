@@ -21,6 +21,7 @@ import Page from "../../components/Page";
 
 const ActionButton = ({ title, icon, link, color }) => {
   const theme = useTheme();
+  const isExternal = link?.startsWith("http");
 
   return (
     <Card
@@ -36,8 +37,11 @@ const ActionButton = ({ title, icon, link, color }) => {
       }}
     >
       <CardContent
-        component={Link}
-        to={link}
+        component={isExternal ? "a" : Link}
+        href={isExternal ? link : undefined}
+        to={isExternal ? undefined : link}
+        target={isExternal ? "_blank" : undefined}
+        rel={isExternal ? "noopener noreferrer" : undefined}
         sx={{
           textDecoration: "none",
           display: "flex",
@@ -93,9 +97,9 @@ const SyllabusSchedule = () => {
       color: theme.palette.info.main,
     },
     {
-      title: "Download Syllabus",
+      title: "Online Portal",
       icon: <DownloadIcon fontSize="large" />,
-      link: "/student/syllabus/download",
+      link: "https://www.vtustudymaterials.online/",
       color: theme.palette.success.main,
     },
     {
