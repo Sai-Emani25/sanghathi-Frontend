@@ -23,6 +23,7 @@ import Image from "mui-image";
 import Page from "../components/Page";
 import { useSnackbar } from "notistack";
 import { Link as RouterLink, useLocation, useNavigate } from "react-router-dom";
+import PasswordInput from "../components/PasswordInput";
 
 import Illustration from "../public/login_illustration.png";
 
@@ -216,13 +217,9 @@ const Login = () => {
                     inputRef={email}
                     autoComplete="email"
                   />
-                  <TextField
+                  <PasswordInput
                     label="Password"
-                    variant="outlined"
-                    type="password"
-                    fullWidth
                     inputRef={password}
-                    autoComplete="current-password"
                   />
 
                   <Box display="flex" justifyContent="flex-end">

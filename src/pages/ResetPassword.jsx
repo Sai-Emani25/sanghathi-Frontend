@@ -7,12 +7,12 @@ import {
   Container,
   Link,
   Stack,
-  TextField,
   Typography,
 } from "@mui/material";
 import { Link as RouterLink, useNavigate, useParams } from "react-router-dom";
 import { useSnackbar } from "notistack";
 import Page from "../components/Page";
+import PasswordInput from "../components/PasswordInput";
 import api from "../utils/axios";
 
 import logger from "../utils/logger.js";
@@ -81,24 +81,20 @@ export default function ResetPassword() {
               Set a new password for your account.
             </Typography>
 
-            <TextField
+            <PasswordInput
               label="New Password"
-              type="password"
               value={password}
               onChange={(event) => setPassword(event.target.value)}
               autoComplete="new-password"
-              fullWidth
               required
               disabled={isSubmitting || isCompleted}
             />
 
-            <TextField
+            <PasswordInput
               label="Confirm New Password"
-              type="password"
               value={passwordConfirm}
               onChange={(event) => setPasswordConfirm(event.target.value)}
               autoComplete="new-password"
-              fullWidth
               required
               disabled={isSubmitting || isCompleted}
             />
