@@ -182,7 +182,11 @@ const AttendanceSummary = ({ user, onAttendanceFetch }) => {
   }, [fetchAttendance]);
 
   if (loading) {
-    return null;
+    return (
+      <Paper sx={{ p: 2, mb: 3, borderRadius: 3, textAlign: 'center' }}>
+        <Typography color="text.secondary">Loading attendance...</Typography>
+      </Paper>
+    );
   }
 
   if (!attendancePercentage) {
