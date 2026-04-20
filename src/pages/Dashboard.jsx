@@ -1,5 +1,5 @@
-import React, { useState, useContext } from "react";
-import { Container, Grid, Typography, Box, useTheme } from "@mui/material";
+import React, { useState, useContext, useEffect, useCallback } from "react";
+import { Container, Grid, Typography, Box, useTheme, Paper } from "@mui/material";
 import Page from "../components/Page";
 import { Card, CardHeader, CardContent, CardActionArea } from "@mui/material";
 import {
@@ -14,7 +14,6 @@ import {
   Select,
   MenuItem,
   Tooltip,
-  Fab,
 } from "@mui/material";
 import {
   BugReport as BugReportIcon,
@@ -37,6 +36,8 @@ import HdrStrongIcon from '@mui/icons-material/HdrStrong';
 import { Link } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import DashboardHeroCard from "../components/dashboard/DashboardHeroCard";
+import useStudentSemester from "../hooks/useStudentSemester";
+import api from "../utils/axios";
 
 const StudentTile = ({ title, icon, link }) => {
   const theme = useTheme();
@@ -125,11 +126,127 @@ const StudentTile = ({ title, icon, link }) => {
   );
 };
 
+const AttendanceSummary = ({ user, onAttendanceFetch }) => {
+  const theme = useTheme();
+  const isLight = theme.palette.mode === 'light';
+  const { semester, loading: semesterLoading } = useStudentSemester();
+  const [attendancePercentage, setAttendancePercentage] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  const fetchAttendance = useCallback(async () => {
+    if (semesterLoading || !user?._id) return;
+
+    try {
+      const response = await api.get(`/students/attendance/${user._id}`);
+      const data = response.data.data.attendance;
+      
+      if (data?.semesters && data.semesters.length > 0) {
+        const currentSemester = semester || data.semesters[0].semester;
+        const semesterData = data.semesters.find(s => s.semester === currentSemester);
+        
+        if (semesterData) {
+          let totalAttended = 0;
+          let totalTaken = 0;
+          
+          semesterData.months.forEach((monthData) => {
+            monthData.subjects.forEach((subject) => {
+              totalAttended += subject.attendedClasses;
+              totalTaken += subject.totalClasses;
+            });
+          });
+          
+          if (totalTaken > 0) {
+            const percentage = ((totalAttended / totalTaken) * 100).toFixed(1);
+            setAttendancePercentage({ percentage, semester: currentSemester });
+            if (onAttendanceFetch) {
+              onAttendanceFetch(percentage, currentSemester);
+            }
+          }
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching attendance:", error);
+    } finally {
+      setLoading(false);
+    }
+  }, [semesterLoading, semester, user?._id, onAttendanceFetch]);
+
+  useEffect(() => {
+    fetchAttendance();
+  }, [fetchAttendance]);
+
+  if (loading || semesterLoading) {
+    return null;
+  }
+
+  if (!attendancePercentage) {
+    return null;
+  }
+
+  const isGoodAttendance = parseFloat(attendancePercentage.percentage) >= 75;
+  const color = isGoodAttendance ? theme.palette.success.main : theme.palette.warning.main;
+
+  return (
+    <Paper
+      elevation={0}
+      sx={{
+        p: 2,
+        mb: 3,
+        borderRadius: 3,
+        backgroundColor: isLight
+          ? alpha(color, 0.1)
+          : alpha(color, 0.15),
+        border: `1px solid ${alpha(color, 0.3)}`,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        flexWrap: "wrap",
+        gap: 2,
+      }}
+    >
+      <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            width: 48,
+            height: 48,
+            borderRadius: "12px",
+            backgroundColor: alpha(color, 0.2),
+            color: color,
+          }}
+        >
+          <TodayIcon fontSize="medium" />
+        </Box>
+        <Box>
+          <Typography variant="body2" color="text.secondary">
+            Current Attendance (Semester {attendancePercentage.semester})
+          </Typography>
+          <Typography variant="h5" fontWeight="bold" sx={{ color }}>
+            {attendancePercentage.percentage}%
+          </Typography>
+        </Box>
+      </Box>
+      <Button
+        component={Link}
+        to="/student/attendance"
+        variant={isLight ? "contained" : "outlined"}
+        size="small"
+        sx={{ borderRadius: 2 }}
+      >
+        View Details
+      </Button>
+    </Paper>
+  );
+};
+
 const Dashboard = () => {
   const theme = useTheme();
   const isLight = theme.palette.mode === 'light';
   const { user } = useContext(AuthContext);
   const [bugReportDialogOpen, setBugReportDialogOpen] = useState(false);
+  const [attendanceData, setAttendanceData] = useState(null);
   
   const handleBugReportDialogOpen = () => {
     setBugReportDialogOpen(true);
@@ -137,6 +254,10 @@ const Dashboard = () => {
   
   const handleBugReportDialogClose = () => {
     setBugReportDialogOpen(false);
+  };
+  
+  const handleAttendanceFetch = (percentage, semester) => {
+    setAttendanceData({ percentage, semester });
   };
   
   return (
@@ -157,7 +278,10 @@ const Dashboard = () => {
             fallbackName="Student"
             dashboardTitle="Student Dashboard"
             description="Welcome to the Sanghathi student portal. Access all student services from here."
+            attendancePercentage={attendanceData?.percentage}
           />
+
+          <AttendanceSummary user={user} onAttendanceFetch={handleAttendanceFetch} />
 
           <Grid container spacing={{ xs: 2, sm: 3 }}>
             <Grid item xs={12} sm={6} md={isLight ? 6 : 6} lg={isLight ? 4 : 4}>

@@ -1,5 +1,5 @@
 import React from "react";
-import { Avatar, Box, Paper, Typography, useTheme } from "@mui/material";
+import { Avatar, Box, Paper, Typography, useTheme, Chip } from "@mui/material";
 import { alpha } from "@mui/material/styles";
 import { getAvatarFallbackText, getAvatarSrc } from "../../utils/avatarResolver";
 
@@ -8,6 +8,7 @@ const DashboardHeroCard = ({
   dashboardTitle,
   description,
   fallbackName = "User",
+  attendancePercentage = null,
 }) => {
   const theme = useTheme();
   const isLight = theme.palette.mode === "light";
@@ -16,6 +17,14 @@ const DashboardHeroCard = ({
   const possessiveName = displayName.endsWith("s")
     ? `${displayName}'`
     : `${displayName}'s`;
+
+  const getAttendanceColor = (percentage) => {
+    if (percentage === null) return "default";
+    const value = parseFloat(percentage);
+    if (value >= 75) return "success";
+    if (value >= 60) return "warning";
+    return "error";
+  };
 
   return (
     <Paper
@@ -97,10 +106,18 @@ const DashboardHeroCard = ({
           {possessiveName} {dashboardTitle}
         </Typography>
 
+        {attendancePercentage !== null && (
+          <Chip
+            label={`Attendance: ${attendancePercentage}%`}
+            color={getAttendanceColor(attendancePercentage)}
+            sx={{ mt: 1.5, fontWeight: 600 }}
+          />
+        )}
+
         <Typography
           variant="body1"
           color="text.secondary"
-          sx={{ maxWidth: "680px", mt: 3 }}
+          sx={{ maxWidth: "680px", mt: 2 }}
         >
           {description}
         </Typography>
