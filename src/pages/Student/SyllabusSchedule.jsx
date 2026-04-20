@@ -1,4 +1,3 @@
-import { useState } from "react";
 import {
   Box,
   Card,
@@ -7,8 +6,6 @@ import {
   Grid,
   Typography,
   useTheme,
-  IconButton,
-  Button,
 } from "@mui/material";
 import { Link } from "react-router-dom";
 import {
@@ -17,12 +14,9 @@ import {
   Download as DownloadIcon,
   School as SchoolIcon,
   Schedule as ScheduleIcon,
-  CloudDownload as CloudDownloadIcon,
 } from "@mui/icons-material";
 import { alpha } from "@mui/material/styles";
 import Page from "../../components/Page";
-
-const PDF_URL = "https://pdf.ac/AZkLYFqjZ4";
 
 const ActionButton = ({ title, icon, link, color }) => {
   const theme = useTheme();
@@ -85,85 +79,6 @@ const ActionButton = ({ title, icon, link, color }) => {
   );
 };
 
-const ClassScheduleViewer = () => {
-  const theme = useTheme();
-  const [pdfError, setPdfError] = useState(false);
-
-  return (
-    <Card sx={{ borderRadius: 3, overflow: "hidden" }}>
-      {pdfError ? (
-        <Box
-          sx={{
-            height: 400,
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: 2,
-            p: 4,
-            textAlign: "center",
-          }}
-        >
-          <Typography variant="h6" color="text.secondary">
-            Unable to preview PDF
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            Please click the download button below to view the class schedule
-          </Typography>
-        </Box>
-      ) : (
-        <object
-          data={`${PDF_URL}#toolbar=0&navpanes=0&scrollbar=0`}
-          type="application/pdf"
-          style={{
-            width: "100%",
-            height: "500px",
-            border: "none",
-          }}
-          onError={() => setPdfError(true)}
-        >
-          <iframe
-            src={PDF_URL}
-            style={{
-              width: "100%",
-              height: "500px",
-              border: "none",
-            }}
-            title="Class Schedule"
-            onError={() => setPdfError(true)}
-          />
-        </object>
-      )}
-      <Box sx={{ p: 2, display: "flex", justifyContent: "center", gap: 2 }}>
-        <IconButton
-          component="a"
-          href={PDF_URL}
-          download="ClassSchedule.pdf"
-          target="_blank"
-          sx={{
-            backgroundColor: theme.palette.primary.main,
-            color: "white",
-            "&:hover": {
-              backgroundColor: theme.palette.primary.dark,
-            },
-          }}
-        >
-          <CloudDownloadIcon />
-        </IconButton>
-        <Button
-          component="a"
-          href={PDF_URL}
-          target="_blank"
-          variant="outlined"
-          startIcon={<DownloadIcon />}
-        >
-          Open in New Tab
-        </Button>
-      </Box>
-    </Card>
-  );
-};
-
 const SyllabusSchedule = () => {
   const theme = useTheme();
 
@@ -175,11 +90,10 @@ const SyllabusSchedule = () => {
       color: theme.palette.primary.main,
     },
     {
-      title: "Class Schedule",
+      title: "Class Timetable",
       icon: <CalendarIcon fontSize="large" />,
       link: "/student/schedule",
       color: theme.palette.info.main,
-      isPdf: true,
     },
     {
       title: "Online Portal",
@@ -215,13 +129,6 @@ const SyllabusSchedule = () => {
             </Grid>
           ))}
         </Grid>
-
-        <Box sx={{ mt: 4 }}>
-          <Typography variant="h5" gutterBottom mb={2}>
-            Class Schedule
-          </Typography>
-          <ClassScheduleViewer />
-        </Box>
       </Container>
     </Page>
   );
