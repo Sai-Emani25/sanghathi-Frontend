@@ -170,11 +170,11 @@ const FacultyProfileInfo = () => {
   return (
     <Box
       sx={{
-        minHeight: "100vh",
         py: { xs: 3, md: 5 },
         background: isLight
           ? "linear-gradient(180deg, rgba(25,118,210,0.08) 0%, rgba(255,255,255,1) 45%)"
           : "linear-gradient(180deg, rgba(34,45,68,0.7) 0%, rgba(14,20,36,1) 55%)",
+        minHeight: 0,
       }}
     >
       <Container maxWidth="lg" sx={{ px: { xs: 1.5, sm: 3 } }}>
