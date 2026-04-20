@@ -271,7 +271,6 @@ export default function ThreadWindow() {
   }, [threadId]);
 
   const handleSendMessage = async (newMessage) => {
-    // Prevent sending message if thread is closed
     if (thread.status === "closed") return;
 
     const message = {
@@ -284,7 +283,8 @@ export default function ThreadWindow() {
       setMessages((prev) => [...prev, data.message]);
       sendMessage(data.message, threadId);
     } catch (err) {
-      logger.info(err);
+      logger.error("Failed to send message:", err);
+      enqueueSnackbar("Failed to send message", { variant: "error" });
     }
   };
 
