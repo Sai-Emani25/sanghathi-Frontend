@@ -129,30 +129,35 @@ const StudentTile = ({ title, icon, link }) => {
 const AttendanceSummary = ({ user, onAttendanceFetch }) => {
   const theme = useTheme();
   const isLight = theme.palette.mode === 'light';
-  const { semester, loading: semesterLoading } = useStudentSemester();
   const [attendancePercentage, setAttendancePercentage] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const fetchAttendance = useCallback(async () => {
-    if (semesterLoading || !user?._id) return;
+    if (!user?._id) {
+      setLoading(false);
+      return;
+    }
 
     try {
       const response = await api.get(`/students/attendance/${user._id}`);
       const data = response.data.data.attendance;
       
       if (data?.semesters && data.semesters.length > 0) {
-        const currentSemester = semester || data.semesters[0].semester;
+        const currentSemester = data.semesters[0].semester;
         const semesterData = data.semesters.find(s => s.semester === currentSemester);
         
-        if (semesterData) {
+        if (semesterData && semesterData.months && semesterData.months.length > 0) {
           let totalAttended = 0;
           let totalTaken = 0;
           
           semesterData.months.forEach((monthData) => {
-            monthData.subjects.forEach((subject) => {
-              totalAttended += subject.attendedClasses;
-              totalTaken += subject.totalClasses;
-            });
+            if (monthData.subjects) {
+              monthData.subjects.forEach((subject) => {
+                totalAttended += subject.attendedClasses || 0;
+                totalTaken += subject.totalClasses || 0;
+              });
+            }
           });
           
           if (totalTaken > 0) {
@@ -164,18 +169,19 @@ const AttendanceSummary = ({ user, onAttendanceFetch }) => {
           }
         }
       }
-    } catch (error) {
-      console.error("Error fetching attendance:", error);
+    } catch (err) {
+      console.error("Error fetching attendance:", err);
+      setError(err.message);
     } finally {
       setLoading(false);
     }
-  }, [semesterLoading, semester, user?._id, onAttendanceFetch]);
+  }, [user?._id, onAttendanceFetch]);
 
   useEffect(() => {
     fetchAttendance();
   }, [fetchAttendance]);
 
-  if (loading || semesterLoading) {
+  if (loading) {
     return null;
   }
 
