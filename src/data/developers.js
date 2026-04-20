@@ -3,7 +3,7 @@ export const developers = {
     id: "kethanvr",
     name: "Kethan VR",
     role: "Full-Stack AI & DevOps Engineer",
-    group: "newbie",
+    group: "others",
     image: "/developers/kethanvr.jpeg",
     github: "https://github.com/Kethanvr",
     linkedin: "https://www.linkedin.com/in/kethanvr/",
@@ -135,7 +135,6 @@ export const developers = {
 };
 
 export const developerGroups = {
-  newbie: ["kethanvr"],
   founders: ["shovan-mondal", "monu564100"],
-  others: ["SUJAY-HK", "Kulsum06", "Sai-Emani25", "vsuryacharan", "advitha24"],
+  others: ["kethanvr", "SUJAY-HK", "Kulsum06", "Sai-Emani25", "vsuryacharan", "advitha24"],
 };

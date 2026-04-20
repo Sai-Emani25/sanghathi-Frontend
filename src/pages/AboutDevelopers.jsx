@@ -28,7 +28,6 @@ import { buildCanonicalUrl, compactObject } from "../utils/seo";
 import { buildBrandedMailto } from "../utils/mailto";
 
 const orderedDeveloperIds = [
-  ...developerGroups.newbie,
   ...developerGroups.founders,
   ...developerGroups.others,
 ];
@@ -304,11 +303,6 @@ const AboutDevelopers = () => {
           </Paper>
 
           <Stack spacing={3}>
-            <TeamSection
-              title="NewBiee in Team"
-              ids={developerGroups.newbie}
-              featuredFirst
-            />
             <TeamSection title="Founders" ids={developerGroups.founders} />
             <TeamSection title="Other Developers" ids={developerGroups.others} />
           </Stack>
