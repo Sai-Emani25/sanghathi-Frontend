@@ -1,12 +1,12 @@
 import {
   Box,
-  Button,
   Card,
   CardContent,
   Container,
   Grid,
   Typography,
   useTheme,
+  IconButton,
 } from "@mui/material";
 import { Link } from "react-router-dom";
 import {
@@ -15,9 +15,12 @@ import {
   Download as DownloadIcon,
   School as SchoolIcon,
   Schedule as ScheduleIcon,
+  CloudDownload as CloudDownloadIcon,
 } from "@mui/icons-material";
 import { alpha } from "@mui/material/styles";
 import Page from "../../components/Page";
+
+const PDF_URL = "https://pdf.ac/AZkLYFqjZ4";
 
 const ActionButton = ({ title, icon, link, color }) => {
   const theme = useTheme();
@@ -80,6 +83,41 @@ const ActionButton = ({ title, icon, link, color }) => {
   );
 };
 
+const ClassScheduleViewer = () => {
+  const theme = useTheme();
+
+  return (
+    <Card sx={{ borderRadius: 3, overflow: "hidden" }}>
+      <iframe
+        src={`https://docs.google.com/gview?embedded=1&url=${encodeURIComponent(PDF_URL)}`}
+        style={{
+          width: "100%",
+          height: "500px",
+          border: "none",
+        }}
+        title="Class Schedule"
+      />
+      <Box sx={{ p: 2, display: "flex", justifyContent: "center" }}>
+        <IconButton
+          component="a"
+          href={PDF_URL}
+          download="ClassSchedule.pdf"
+          target="_blank"
+          sx={{
+            backgroundColor: theme.palette.primary.main,
+            color: "white",
+            "&:hover": {
+              backgroundColor: theme.palette.primary.dark,
+            },
+          }}
+        >
+          <CloudDownloadIcon />
+        </IconButton>
+      </Box>
+    </Card>
+  );
+};
+
 const SyllabusSchedule = () => {
   const theme = useTheme();
 
@@ -95,6 +133,7 @@ const SyllabusSchedule = () => {
       icon: <CalendarIcon fontSize="large" />,
       link: "/student/schedule",
       color: theme.palette.info.main,
+      isPdf: true,
     },
     {
       title: "Online Portal",
@@ -130,6 +169,13 @@ const SyllabusSchedule = () => {
             </Grid>
           ))}
         </Grid>
+
+        <Box sx={{ mt: 4 }}>
+          <Typography variant="h5" gutterBottom mb={2}>
+            Class Schedule
+          </Typography>
+          <ClassScheduleViewer />
+        </Box>
       </Container>
     </Page>
   );
