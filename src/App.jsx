@@ -48,6 +48,7 @@ const FetchStudentProfile = lazy(() => import("./pages/Faculty/FetchStudentProfi
 const StudentDashboard = lazy(() => import("./pages/Faculty/StudentDashboard"));
 const Settings = lazy(() => import("./pages/Settings/Settings"));
 const TYLScorecard = lazy(() => import("./pages/Student/TYLScorecard"));
+const Fees = lazy(() => import("./pages/Student/Fees"));
 const MentorMenteeConversation = lazy(() => import("./pages/MentorMentee/MentorMenteeConversation"));
 const MyChatBot = lazy(() => import("./mychatbot"));
 const AboutDevelopers = lazy(() => import("./pages/AboutDevelopers"));
@@ -362,6 +363,14 @@ function App() {
                     element={
                       <ProtectedRouteWrapper>
                         <LazyLoadWrapper component={Attendance} />
+                      </ProtectedRouteWrapper>
+                    }
+                  />
+                  <Route
+                    path="/student/fees"
+                    element={
+                      <ProtectedRouteWrapper>
+                        <LazyLoadWrapper component={Fees} />
                       </ProtectedRouteWrapper>
                     }
                   />
