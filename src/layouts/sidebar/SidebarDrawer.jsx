@@ -10,7 +10,12 @@ const SidebarDrawer = ({
 }) => {
   const theme = useTheme();
   const isNonMobile = useResponsive("up", "sm");
-  const drawerSxWidth = isNonMobile && isSidebarOpen ? drawerWidth : 0;
+  const getDrawerWidth = () => {
+    if (!isNonMobile) return 0;
+    if (typeof drawerWidth === 'object') return drawerWidth.sm || drawerWidth.md || 250;
+    return drawerWidth;
+  };
+  const actualWidth = getDrawerWidth();
 
   return (
     <Drawer
@@ -24,21 +29,22 @@ const SidebarDrawer = ({
       }}
       sx={{
         flexShrink: 0,
-        width: drawerSxWidth,
-        boxShadow: theme.palette.mode === "light"
-          ? "0 0 6px rgba(0, 0, 0, 0.1)"
-          : "0 0 8px rgba(0, 0, 0, 0.3)",
+        width: isSidebarOpen ? actualWidth : 0,
+        transition: theme.transitions.create("width", {
+          duration: theme.transitions.duration.standard,
+        }),
         "& .MuiDrawer-paper": {
           color: theme.palette.text.primary,
           backgroundColor: theme.palette.background.paper,
-          width: drawerWidth,
+          width: actualWidth,
           maxWidth: "100vw",
           boxSizing: "border-box",
           borderRight: `1px solid ${theme.palette.divider}`,
           boxShadow: theme.palette.mode === "light"
             ? "0 0 6px rgba(0, 0, 0, 0.1)"
             : "0 0 8px rgba(0, 0, 0, 0.3)",
-          transition: theme.transitions.create("transform", {
+          transform: isSidebarOpen ? "none" : "translateX(-100%)",
+          transition: theme.transitions.create(["width", "transform"], {
             duration: theme.transitions.duration.standard,
           }),
           overscrollBehavior: "contain",

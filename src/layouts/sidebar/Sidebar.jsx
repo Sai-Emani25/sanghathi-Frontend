@@ -35,7 +35,12 @@ const Sidebar = ({
 
   const navConfig = getNavConfig(user?.roleName);
 
-  const sidebarWidth = isNonMobile && isSidebarOpen ? drawerWidth : 0;
+  const getSidebarWidth = () => {
+    if (!isNonMobile || !isSidebarOpen) return 0;
+    if (typeof drawerWidth === 'object') return drawerWidth.sm || drawerWidth.md || 250;
+    return drawerWidth;
+  };
+  const sidebarWidth = getSidebarWidth();
 
   return (
     <Box
