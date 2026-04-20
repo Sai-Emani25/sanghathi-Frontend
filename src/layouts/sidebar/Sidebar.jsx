@@ -35,52 +35,53 @@ const Sidebar = ({
 
   const navConfig = getNavConfig(user?.roleName);
 
-  const getSidebarWidth = () => {
+  const getActualWidth = () => {
     if (!isNonMobile || !isSidebarOpen) return 0;
-    if (typeof drawerWidth === 'object') return drawerWidth.sm || drawerWidth.md || 250;
-    return drawerWidth;
+    return typeof drawerWidth === 'number' ? drawerWidth : 250;
   };
-  const sidebarWidth = getSidebarWidth();
+
+  const actualWidth = getActualWidth();
 
   return (
     <Box
       component="nav"
-      sx={{ width: sidebarWidth, flexShrink: { sm: 0 } }}
+      sx={{
+        width: actualWidth,
+        flexShrink: 0,
+        display: isSidebarOpen ? "block" : "none",
+      }}
     >
-      {isSidebarOpen && (
-        <SidebarDrawer
-          isSidebarOpen={isSidebarOpen}
-          setIsSidebarOpen={setIsSidebarOpen}
-          drawerWidth={drawerWidth}
-          onBackdropClick={onBackdropClick}
-        >
-          <Box display="flex" flexDirection="column" alignItems="center">
-            <img
-              src={logo}
-              alt="CMRIT Logo"
-              style={{
-                filter: "none",
-                margin: isNonMobile ? "16px 5px" : "20px 8px",
-                width: isNonMobile ? "145px" : "110px",
-                maxWidth: "100%",
-                transition: "width 0.2s ease",
-              }}
-            />
-          </Box>
-          <FlexBetween color={theme.palette.secondary.main}>
-            {!isNonMobile && (
-              <IconButton onClick={() => setIsSidebarOpen(!isSidebarOpen)}>
-                <ChevronLeft />
-              </IconButton>
-            )}
-          </FlexBetween>
-          <NavItemsList
-            navConfig={navConfig}
-            active={active}
-            setActive={setActive}
+      <SidebarDrawer
+        isSidebarOpen={isSidebarOpen}
+        setIsSidebarOpen={setIsSidebarOpen}
+        drawerWidth={drawerWidth}
+        onBackdropClick={onBackdropClick}
+      >
+        <Box display="flex" flexDirection="column" alignItems="center">
+          <img
+            src={logo}
+            alt="CMRIT Logo"
+            style={{
+              filter: "none",
+              margin: isNonMobile ? "16px 5px" : "20px 8px",
+              width: isNonMobile ? "145px" : "110px",
+              maxWidth: "100%",
+            }}
           />
-        </SidebarDrawer>
-      )}
+        </Box>
+        <FlexBetween color={theme.palette.secondary.main}>
+          {!isNonMobile && (
+            <IconButton onClick={() => setIsSidebarOpen(!isSidebarOpen)}>
+              <ChevronLeft />
+            </IconButton>
+          )}
+        </FlexBetween>
+        <NavItemsList
+          navConfig={navConfig}
+          active={active}
+          setActive={setActive}
+        />
+      </SidebarDrawer>
     </Box>
   );
 };

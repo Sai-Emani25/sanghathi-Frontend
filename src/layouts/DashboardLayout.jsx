@@ -9,6 +9,7 @@ import { AuthContext } from "../context/AuthContext";
 import ReleaseAnnouncementDialog from "../components/updates/ReleaseAnnouncementDialog";
 
 const RELEASE_ANNOUNCEMENT_SESSION_KEY = "showSanghathi20Announcement";
+const SIDEBAR_WIDTH = 250;
 
 const DashboardLayout = () => {
   const navigate = useNavigate();
@@ -16,13 +17,6 @@ const DashboardLayout = () => {
   const isNonMobile = useResponsive("up", "sm");
   const [isSidebarOpen, setIsSidebarOpen] = useState(isNonMobile);
   const [isReleaseDialogOpen, setIsReleaseDialogOpen] = useState(false);
-
-  const getNumericWidth = (widthObj) => {
-    if (!widthObj) return 0;
-    if (typeof widthObj === 'number') return widthObj;
-    if (typeof widthObj === 'object') return widthObj.sm || widthObj.md || 250;
-    return 0;
-  };
 
   useEffect(() => {
     setIsSidebarOpen(isNonMobile);
@@ -33,12 +27,12 @@ const DashboardLayout = () => {
       return;
     }
 
-      const shouldShowReleaseDialog =
-        sessionStorage.getItem(RELEASE_ANNOUNCEMENT_SESSION_KEY) === "true";
+    const shouldShowReleaseDialog =
+      sessionStorage.getItem(RELEASE_ANNOUNCEMENT_SESSION_KEY) === "true";
 
-      if (shouldShowReleaseDialog) {
-        setIsReleaseDialogOpen(true);
-      }
+    if (shouldShowReleaseDialog) {
+      setIsReleaseDialogOpen(true);
+    }
   }, [user?._id]);
 
   const handleBackdropClick = () => {
@@ -48,18 +42,22 @@ const DashboardLayout = () => {
   };
 
   const handleReleaseDismiss = () => {
-      sessionStorage.removeItem(RELEASE_ANNOUNCEMENT_SESSION_KEY);
+    sessionStorage.removeItem(RELEASE_ANNOUNCEMENT_SESSION_KEY);
     setIsReleaseDialogOpen(false);
   };
 
   const handleReleaseCheckUpdates = () => {
-      sessionStorage.removeItem(RELEASE_ANNOUNCEMENT_SESSION_KEY);
+    sessionStorage.removeItem(RELEASE_ANNOUNCEMENT_SESSION_KEY);
     setIsReleaseDialogOpen(false);
     navigate("/updates");
   };
 
-  const numericDrawerWidth = getNumericWidth({ xs: "84vw", sm: 250 });
-  const sidebarWidth = isNonMobile && isSidebarOpen ? numericDrawerWidth : 0;
+  const getSidebarWidth = () => {
+    if (!isNonMobile || !isSidebarOpen) return 0;
+    return SIDEBAR_WIDTH;
+  };
+
+  const sidebarWidth = getSidebarWidth();
 
   return (
     <Box
@@ -72,19 +70,20 @@ const DashboardLayout = () => {
     >
       <Sidebar
         isNonMobile={isNonMobile}
-        drawerWidth={{ xs: "84vw", sm: 250 }}
+        drawerWidth={SIDEBAR_WIDTH}
         isSidebarOpen={isSidebarOpen}
         setIsSidebarOpen={setIsSidebarOpen}
         onBackdropClick={handleBackdropClick}
       />
       <Box
+        component="main"
         sx={{
           flexGrow: 1,
+          width: { xs: "100%", sm: `calc(100% - ${sidebarWidth}px)` },
           minWidth: 0,
           display: "flex",
           flexDirection: "column",
           minHeight: "100vh",
-          ml: `${sidebarWidth}px`,
         }}
       >
         <DashboardHeader
