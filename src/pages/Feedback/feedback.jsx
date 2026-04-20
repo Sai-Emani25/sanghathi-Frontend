@@ -39,18 +39,18 @@ export default function FeedbackForm() {
     const fetchFeedback = async () => {
       try {
         const resp = await api.get(`/feedback/${targetUserId}`);
-        const data = resp.data;
-        // assuming data has keys matching DEFAULT_VALUES
-        reset({
-          issues: data.issues || "",
-          features: data.features || "",
-          performance: data.performance || "",
-          feedback: data.feedback || "",
-        });
-        setExistingFeedback(data);
+        const feedbackData = resp.data.data?.feedback;
+        if (feedbackData) {
+          reset({
+            issues: feedbackData.issues || "",
+            features: feedbackData.features || "",
+            performance: feedbackData.performance || "",
+            feedback: feedbackData.feedback || "",
+          });
+          setExistingFeedback(feedbackData);
+        }
       } catch (err) {
         logger.error("Error fetching feedback:", err);
-        // maybe show snackbar or ignore
       } finally {
         setIsDataFetched(true);
       }
@@ -66,17 +66,12 @@ export default function FeedbackForm() {
       }
 
       const requestData = { ...formData, userId: targetUserId };
-
-      // If existing feedback, use update; else create new
-      let resp;
-      if (existingFeedback && existingFeedback._id) {
-        resp = await api.put(`/feedback/${existingFeedback._id}`, requestData);
-      } else {
-        resp = await api.post("/feedback", requestData);
+      const resp = await api.post("/feedback", requestData);
+      const savedFeedback = resp.data.data?.feedback;
+      if (savedFeedback) {
+        setExistingFeedback(savedFeedback);
       }
-
       enqueueSnackbar("Feedback saved successfully!", { variant: "success" });
-      // optionally reset form or refetch
     } catch (error) {
       logger.error("Error saving feedback:", error);
       const errorMessage =
