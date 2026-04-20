@@ -45,7 +45,7 @@ const Sidebar = ({
   return (
     <Box
       component="nav"
-      sx={{ width: sidebarWidth, flexShrink: { sm: 0 }, transition: theme => theme.transitions.create("width", { duration: theme.transitions.duration.standard }) }}
+      sx={{ width: sidebarWidth, flexShrink: { sm: 0 } }}
     >
       {isSidebarOpen && (
         <SidebarDrawer

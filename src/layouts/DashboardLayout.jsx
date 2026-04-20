@@ -81,12 +81,10 @@ const DashboardLayout = () => {
         sx={{
           flexGrow: 1,
           minWidth: 0,
-          width: `calc(100% - ${sidebarWidth}px)`,
           display: "flex",
           flexDirection: "column",
           minHeight: "100vh",
           ml: `${sidebarWidth}px`,
-          transition: theme => theme.transitions.create(["margin-left", "width"], { duration: theme.transitions.duration.standard }),
         }}
       >
         <DashboardHeader
