@@ -35,10 +35,12 @@ const Sidebar = ({
 
   const navConfig = getNavConfig(user?.roleName);
 
+  const sidebarWidth = isNonMobile && isSidebarOpen ? drawerWidth : 0;
+
   return (
     <Box
       component="nav"
-      sx={{ width: isNonMobile ? drawerWidth : 0, flexShrink: { sm: 0 } }}
+      sx={{ width: sidebarWidth, flexShrink: { sm: 0 }, transition: theme => theme.transitions.create("width", { duration: theme.transitions.duration.standard }) }}
     >
       {isSidebarOpen && (
         <SidebarDrawer

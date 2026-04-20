@@ -10,6 +10,7 @@ const SidebarDrawer = ({
 }) => {
   const theme = useTheme();
   const isNonMobile = useResponsive("up", "sm");
+  const drawerSxWidth = isNonMobile && isSidebarOpen ? drawerWidth : 0;
 
   return (
     <Drawer
@@ -23,7 +24,7 @@ const SidebarDrawer = ({
       }}
       sx={{
         flexShrink: 0,
-        width: isNonMobile ? drawerWidth : 0,
+        width: drawerSxWidth,
         boxShadow: theme.palette.mode === "light"
           ? "0 0 6px rgba(0, 0, 0, 0.1)"
           : "0 0 8px rgba(0, 0, 0, 0.3)",

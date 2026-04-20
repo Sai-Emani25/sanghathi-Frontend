@@ -51,6 +51,8 @@ const DashboardLayout = () => {
     navigate("/updates");
   };
 
+  const sidebarWidth = isNonMobile && isSidebarOpen ? 250 : 0;
+
   return (
     <Box
       sx={{
@@ -74,6 +76,8 @@ const DashboardLayout = () => {
           display: "flex",
           flexDirection: "column",
           minHeight: "100vh",
+          ml: `${sidebarWidth}px`,
+          transition: theme => theme.transitions.create("margin-left", { duration: theme.transitions.duration.standard }),
         }}
       >
         <DashboardHeader
