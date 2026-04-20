@@ -29,6 +29,8 @@ import {
   Group as GroupIcon,
   Analytics as AnalyticsIcon,
   AccountBalanceWallet as WalletIcon,
+  MenuBook as MenuBookIcon,
+  CalendarMonth as CalendarIcon,
 } from "@mui/icons-material";
 import { blueGrey } from "@mui/material/colors";
 import { alpha } from "@mui/material/styles";
@@ -344,6 +346,14 @@ const Dashboard = () => {
                 title="Fees"
                 icon={<WalletIcon />}
                 link="/student/fees"
+              />
+            </Grid>
+
+            <Grid item xs={12} sm={6} md={isLight ? 6 : 6} lg={isLight ? 4 : 4}>
+              <StudentTile
+                title="Syllabus & Schedule"
+                icon={<MenuBookIcon />}
+                link="/student/syllabus-schedule"
               />
             </Grid>
             
