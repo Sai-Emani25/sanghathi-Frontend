@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   Box,
   Card,
@@ -7,6 +8,7 @@ import {
   Typography,
   useTheme,
   IconButton,
+  Button,
 } from "@mui/material";
 import { Link } from "react-router-dom";
 import {
@@ -85,19 +87,54 @@ const ActionButton = ({ title, icon, link, color }) => {
 
 const ClassScheduleViewer = () => {
   const theme = useTheme();
+  const [pdfError, setPdfError] = useState(false);
 
   return (
     <Card sx={{ borderRadius: 3, overflow: "hidden" }}>
-      <iframe
-        src={`https://docs.google.com/gview?embedded=1&url=${encodeURIComponent(PDF_URL)}`}
-        style={{
-          width: "100%",
-          height: "500px",
-          border: "none",
-        }}
-        title="Class Schedule"
-      />
-      <Box sx={{ p: 2, display: "flex", justifyContent: "center" }}>
+      {pdfError ? (
+        <Box
+          sx={{
+            height: 400,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 2,
+            p: 4,
+            textAlign: "center",
+          }}
+        >
+          <Typography variant="h6" color="text.secondary">
+            Unable to preview PDF
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            Please click the download button below to view the class schedule
+          </Typography>
+        </Box>
+      ) : (
+        <object
+          data={`${PDF_URL}#toolbar=0&navpanes=0&scrollbar=0`}
+          type="application/pdf"
+          style={{
+            width: "100%",
+            height: "500px",
+            border: "none",
+          }}
+          onError={() => setPdfError(true)}
+        >
+          <iframe
+            src={PDF_URL}
+            style={{
+              width: "100%",
+              height: "500px",
+              border: "none",
+            }}
+            title="Class Schedule"
+            onError={() => setPdfError(true)}
+          />
+        </object>
+      )}
+      <Box sx={{ p: 2, display: "flex", justifyContent: "center", gap: 2 }}>
         <IconButton
           component="a"
           href={PDF_URL}
@@ -113,6 +150,15 @@ const ClassScheduleViewer = () => {
         >
           <CloudDownloadIcon />
         </IconButton>
+        <Button
+          component="a"
+          href={PDF_URL}
+          target="_blank"
+          variant="outlined"
+          startIcon={<DownloadIcon />}
+        >
+          Open in New Tab
+        </Button>
       </Box>
     </Card>
   );
