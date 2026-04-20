@@ -4,9 +4,7 @@ export const developers = {
     name: "Kethan VR",
     role: "Full-Stack AI & DevOps Engineer",
     group: "others",
-    image: "/developers/kethanvr.jpeg",
     github: "https://github.com/Kethanvr",
-    linkedin: "https://www.linkedin.com/in/kethanvr/",
     email: "kethan.ise24@cmrit.ac.in",
     shortBio:
       "Architects, deploys, and scales production-grade full-stack AI systems end-to-end.",
