@@ -3,7 +3,12 @@ import { useSearchParams } from 'react-router-dom';
 import {
   Alert,
   Box,
+  Button,
   Container,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
   FormControl,
   InputLabel,
   MenuItem,
@@ -15,13 +20,18 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  TextField,
   Typography,
   useMediaQuery,
   useTheme,
 } from "@mui/material";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { AuthContext } from "../../context/AuthContext";
 import useStudentSemester from "../../hooks/useStudentSemester";
 import api from "../../utils/axios";
+import { useSnackbar } from "notistack";
 
 import logger from "../../utils/logger.js";
 const Attendance = () => {
@@ -34,8 +44,17 @@ const Attendance = () => {
   const [studentInfo, setStudentInfo] = useState({ usn: '', name: '' });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [selectedSemester, setSelectedSemester] = useState(null); // Initialize to null
-  const [selectedMonth, setSelectedMonth] = useState(0); // 0 for "All"
+  const [selectedSemester, setSelectedSemester] = useState(null);
+  const [selectedMonth, setSelectedMonth] = useState(0);
+  const { enqueueSnackbar } = useSnackbar();
+  
+  const [absentReportDialogOpen, setAbsentReportDialogOpen] = useState(false);
+  const [absentDate, setAbsentDate] = useState(null);
+  const [absentReason, setAbsentReason] = useState("");
+  const [absentProof, setAbsentProof] = useState(null);
+  const [absentProofPreview, setAbsentProofPreview] = useState(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [myReports, setMyReports] = useState([]);
 
   const fetchAttendance = useCallback(async () => {
     // Wait for semester to load before fetching
@@ -102,9 +121,60 @@ const Attendance = () => {
     }
   }, [semesterLoading, searchParams, user, studentSemester]);
 
+  const fetchMyReports = useCallback(async () => {
+    if (!user?._id) return;
+    try {
+      const res = await api.get(`/students/absence-reports/my`);
+      setMyReports(res.data.data.reports || []);
+    } catch (err) {
+      logger.warn("Could not fetch my absence reports:", err);
+    }
+  }, [user?._id]);
+
+  const handleAbsentReportSubmit = async () => {
+    if (!absentDate || !absentReason) {
+      enqueueSnackbar("Please provide date and reason", { variant: "error" });
+      return;
+    }
+    setSubmitting(true);
+    try {
+      const formData = new FormData();
+      formData.append("absentDate", absentDate.toISOString().split("T")[0]);
+      formData.append("reason", absentReason);
+      if (absentProof) {
+        formData.append("proof", absentProof);
+      }
+      await api.post("/students/absence-reports", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      enqueueSnackbar("Absence report submitted successfully!", { variant: "success" });
+      setAbsentReportDialogOpen(false);
+      setAbsentDate(null);
+      setAbsentReason("");
+      setAbsentProof(null);
+      setAbsentProofPreview(null);
+      fetchMyReports();
+    } catch (err) {
+      enqueueSnackbar(err.response?.data?.message || "Failed to submit absence report", { variant: "error" });
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleProofChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setAbsentProof(file);
+      const reader = new FileReader();
+      reader.onloadend = () => setAbsentProofPreview(reader.result);
+      reader.readAsDataURL(file);
+    }
+  };
+
   useEffect(() => {
     fetchAttendance();
-  }, [fetchAttendance]);
+    fetchMyReports();
+  }, [fetchAttendance, fetchMyReports]);
 
   // No need for transformBackendData in the old way
 
@@ -213,15 +283,27 @@ const Attendance = () => {
     };
 
   return (
-    <Container maxWidth="lg" sx={{ px: { xs: 1.5, sm: 3 }, py: { xs: 2, sm: 3 } }}>
-      <Typography
-        variant={isSmDown ? "h5" : "h4"}
-        component="h1"
-        gutterBottom
-        align="center"
-      >
-        Attendance Report
-      </Typography>
+    <LocalizationProvider dateAdapter={AdapterDateFns}>
+      <Container maxWidth="lg" sx={{ px: { xs: 1.5, sm: 3 }, py: { xs: 2, sm: 3 } }}>
+        <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 2 }}>
+          <Typography
+            variant={isSmDown ? "h5" : "h4"}
+            component="h1"
+            gutterBottom
+            align="center"
+            sx={{ mb: 0 }}
+          >
+            Attendance Report
+          </Typography>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={() => setAbsentReportDialogOpen(true)}
+            sx={{ borderRadius: 2 }}
+          >
+            Submit Absent Report
+          </Button>
+        </Stack>
       {studentInfo.usn && (
         <Stack
           direction={{ xs: "column", sm: "row" }}
@@ -345,7 +427,73 @@ const Attendance = () => {
           </Table>
         </TableContainer>
       )}
+      <Dialog open={absentReportDialogOpen} onClose={() => setAbsentReportDialogOpen(false)} maxWidth="sm" fullWidth>
+        <DialogTitle>Submit Absence Report</DialogTitle>
+        <DialogContent>
+          <Stack spacing={2} sx={{ mt: 1 }}>
+            <DatePicker
+              label="Date of Absence"
+              value={absentDate}
+              onChange={setAbsentDate}
+              slotProps={{ textField: { fullWidth: true } }}
+              disableFuture={false}
+            />
+            <TextField
+              label="Reason for Absence"
+              multiline
+              rows={3}
+              fullWidth
+              value={absentReason}
+              onChange={(e) => setAbsentReason(e.target.value)}
+              placeholder="Please provide a valid reason for your absence"
+            />
+            <Box>
+              <Typography variant="body2" color="text.secondary" gutterBottom>
+                Proof (optional - image, document, etc.)
+              </Typography>
+              <input
+                type="file"
+                accept="image/*,.pdf"
+                onChange={handleProofChange}
+                style={{ width: "100%" }}
+              />
+              {absentProofPreview && (
+                <Box mt={1} sx={{ maxWidth: 200 }}>
+                  {absentProof?.type?.startsWith("image/") ? (
+                    <img src={absentProofPreview} alt="Proof preview" style={{ maxWidth: "100%", borderRadius: 8 }} />
+                  ) : (
+                    <Typography variant="body2">{absentProof?.name}</Typography>
+                  )}
+                </Box>
+              )}
+            </Box>
+            {myReports.length > 0 && (
+              <Box sx={{ mt: 2 }}>
+                <Typography variant="subtitle2" gutterBottom>My Submitted Reports</Typography>
+                <Stack spacing={1}>
+                  {myReports.map((report) => (
+                    <Box key={report._id} sx={{ p: 1, border: "1px solid", borderRadius: 1, borderColor: "divider" }}>
+                      <Typography variant="body2"><strong>Date:</strong> {new Date(report.absentDate).toLocaleDateString()}</Typography>
+                      <Typography variant="body2"><strong>Reason:</strong> {report.reason}</Typography>
+                      <Typography variant="body2" sx={{ color: report.status === "approved" ? "success.main" : report.status === "rejected" ? "error.main" : "warning.main" }}>
+                        <strong>Status:</strong> {report.status}
+                      </Typography>
+                    </Box>
+                  ))}
+                </Stack>
+              </Box>
+            )}
+          </Stack>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setAbsentReportDialogOpen(false)}>Cancel</Button>
+          <Button onClick={handleAbsentReportSubmit} variant="contained" disabled={submitting}>
+            {submitting ? "Submitting..." : "Submit"}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Container>
+    </LocalizationProvider>
   );
 };
 

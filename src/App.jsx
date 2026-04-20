@@ -52,6 +52,7 @@ const Fees = lazy(() => import("./pages/Student/Fees"));
 const SyllabusSchedule = lazy(() => import("./pages/Student/SyllabusSchedule"));
 const ClassTimetable = lazy(() => import("./pages/Student/ClassTimetable"));
 const MentorMenteeConversation = lazy(() => import("./pages/MentorMentee/MentorMenteeConversation"));
+const MenteeAttendance = lazy(() => import("./pages/Faculty/MenteeAttendance"));
 const MyChatBot = lazy(() => import("./mychatbot"));
 const AboutDevelopers = lazy(() => import("./pages/AboutDevelopers"));
 const DeveloperProfile = lazy(() => import("./pages/DeveloperProfile"));
@@ -506,6 +507,14 @@ function App() {
                     element={
                       <ProtectedRouteWrapper>
                         <LazyLoadWrapper component={MentorMenteeConversation} />
+                      </ProtectedRouteWrapper>
+                    }
+                  />
+                  <Route
+                    path="/faculty/mentee-attendance"
+                    element={
+                      <ProtectedRouteWrapper allowedRoles={["faculty"]}>
+                        <LazyLoadWrapper component={MenteeAttendance} />
                       </ProtectedRouteWrapper>
                     }
                   />
