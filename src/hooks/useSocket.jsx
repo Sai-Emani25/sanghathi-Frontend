@@ -20,18 +20,23 @@ const useSocket = (threadId, userId, setMessages) => {
       timeout: 20000,
     });
 
-    socket.current.on("connect", () => {
+    const onConnect = () => {
       logger.info("Socket connected:", socket.current.id);
       if (threadId) {
         joinRoom(threadId);
       }
-    });
+    };
 
-    socket.current.on("connect_error", (error) => {
+    const onConnectError = (error) => {
       logger.error("Socket connection error:", error);
-    });
+    };
+
+    socket.current.on("connect", onConnect);
+    socket.current.on("connect_error", onConnectError);
 
     return () => {
+      socket.current.off("connect", onConnect);
+      socket.current.off("connect_error", onConnectError);
       socket.current.disconnect();
     };
   }, [userId, threadId]);

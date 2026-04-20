@@ -69,6 +69,7 @@ export default function ChatSidebar() {
     const filtered = conversations.filter((conversation) =>
       conversation.participants.some(
         (participant) =>
+          participant.name &&
           participant.name
             .toLowerCase()
             .includes(searchTerm.trim().toLowerCase()) &&

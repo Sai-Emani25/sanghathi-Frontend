@@ -60,8 +60,8 @@ export default function Counselling() {
 
   const onSubmit = useCallback(async (formData) => {
     try {
-      await api.post("/api/abc", formData);
-      enqueueSnackbar("Student profile created successfully!", {
+      await api.post("/students/ptm", formData);
+      enqueueSnackbar("Counselling record saved successfully!", {
         variant: "success",
       });
       reset();
