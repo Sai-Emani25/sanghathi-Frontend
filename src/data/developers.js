@@ -5,7 +5,6 @@ export const developers = {
     role: "Full-Stack AI & DevOps Engineer",
     group: "others",
     github: "https://github.com/Kethanvr",
-    email: "kethan.ise24@cmrit.ac.in",
     shortBio:
       "Architects, deploys, and scales production-grade full-stack AI systems end-to-end.",
     fullProfile: {
